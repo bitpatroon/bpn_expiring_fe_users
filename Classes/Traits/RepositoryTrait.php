@@ -32,6 +32,17 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 trait RepositoryTrait
 {
+    /** @var array */
+    protected $sql;
+
+    /**
+     * @return array
+     */
+    public function getSql() : array
+    {
+        return $this->sql;
+    }
+
     protected function setResultIndexField(array $data, string $field = 'uid')
     {
         if (empty($data)) {
@@ -57,7 +68,7 @@ trait RepositoryTrait
                     $fieldValue = $row[$field];
                 }
 
-                if(is_numeric($fieldValue)){
+                if (is_numeric($fieldValue)) {
                     $fieldValue = (int)$fieldValue;
                 }
 
@@ -92,4 +103,7 @@ trait RepositoryTrait
         return $queryBuilder->getParameters();
     }
 
+    protected function setFullStatement(QueryBuilder $queryBuilder){
+        $this->sql = $this->getFullStatement($queryBuilder);
+    }
 }

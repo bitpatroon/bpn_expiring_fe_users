@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dataset>
   <fe_users>
-    <uid>1</uid>
+    <uid>100</uid>
     <pid>1</pid>
     <username>active-user-no-expiration</username>
     <starttime>0</starttime>
@@ -11,9 +11,10 @@
     <disable>0</disable>
     <deleted>0</deleted>
     <tx_expiringfegroups_groups></tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
   </fe_users>
   <fe_users>
-    <uid>2</uid>
+    <uid>1</uid>
     <pid>1</pid>
     <username>user-not-loggedin-for-a-while</username>
     <starttime>0</starttime>
@@ -23,9 +24,10 @@
     <disable>0</disable>
     <deleted>0</deleted>
     <tx_expiringfegroups_groups></tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
   </fe_users>
   <fe_users>
-    <uid>3</uid>
+    <uid>2</uid>
     <pid>1</pid>
     <username>active-user-older-one-year</username>
     <starttime>0</starttime>
@@ -35,9 +37,10 @@
     <disable>0</disable>
     <deleted>0</deleted>
     <tx_expiringfegroups_groups></tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
   </fe_users>
   <fe_users>
-    <uid>4</uid>
+    <uid>3</uid>
     <pid>1</pid>
     <username>user-disabled</username>
     <starttime>0</starttime>
@@ -47,9 +50,10 @@
     <disable>1</disable>
     <deleted>0</deleted>
     <tx_expiringfegroups_groups></tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
   </fe_users>
   <fe_users>
-    <uid>5</uid>
+    <uid>4</uid>
     <pid>1</pid>
     <username>user-expires-one-week</username>
     <starttime>0</starttime>
@@ -59,9 +63,10 @@
     <disable>0</disable>
     <deleted>0</deleted>
     <tx_expiringfegroups_groups></tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
   </fe_users>
   <fe_users>
-    <uid>6</uid>
+    <uid>5</uid>
     <pid>1</pid>
     <username>user-expired</username>
     <starttime>0</starttime>
@@ -71,6 +76,20 @@
     <disable>0</disable>
     <deleted>0</deleted>
     <tx_expiringfegroups_groups></tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
+  </fe_users>
+  <fe_users>
+    <uid>6</uid>
+    <pid>1</pid>
+    <username>user-has-been-expired-for</username>
+    <starttime>0</starttime>
+    <endtime>0</endtime>
+    <lastlogin>0</lastlogin>
+    <crdate>1620000000</crdate>
+    <disable>0</disable>
+    <deleted>0</deleted>
+    <tx_expiringfegroups_groups></tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
   </fe_users>
   <fe_users>
     <uid>7</uid>
@@ -83,6 +102,7 @@
     <disable>0</disable>
     <deleted>0</deleted>
     <tx_expiringfegroups_groups></tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
   </fe_users>
   <fe_users>
     <uid>8</uid>
@@ -95,6 +115,7 @@
     <disable>0</disable>
     <deleted>0</deleted>
     <tx_expiringfegroups_groups></tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
   </fe_users>
   <fe_users>
     <uid>20</uid>
@@ -107,6 +128,7 @@
     <disable>0</disable>
     <deleted>0</deleted>
     <tx_expiringfegroups_groups>*</tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
   </fe_users>
   <fe_users>
     <uid>21</uid>
@@ -119,6 +141,7 @@
     <disable>0</disable>
     <deleted>0</deleted>
     <tx_expiringfegroups_groups>*</tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
   </fe_users>
   <fe_users>
     <uid>22</uid>
@@ -131,5 +154,19 @@
     <disable>0</disable>
     <deleted>0</deleted>
     <tx_expiringfegroups_groups>*</tx_expiringfegroups_groups>
+    <usergroup>1</usergroup>
+  </fe_users>
+  <fe_users>
+    <uid>23</uid>
+    <pid>1</pid>
+    <username>user-not-memberof-group1</username>
+    <starttime>0</starttime>
+    <endtime>0</endtime>
+    <lastlogin>0</lastlogin>
+    <crdate>1620000000</crdate>
+    <disable>0</disable>
+    <deleted>0</deleted>
+    <tx_expiringfegroups_groups>*</tx_expiringfegroups_groups>
+    <usergroup>2,3</usergroup>
   </fe_users>
 </dataset>

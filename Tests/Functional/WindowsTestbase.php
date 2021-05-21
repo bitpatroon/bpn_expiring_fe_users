@@ -91,6 +91,7 @@ class WindowsTestbase extends Testbase
         if (0 === strpos(php_uname(), 'Windows')) {
             $cmd = 'start ' . ($background ? '/B ' : '') . $cmd;
             // code is responsible for outputting :"The process tried to write to a nonexistent pipe."
+            $errorReporting = error_reporting (0);
             try{
                 $pipe = popen($cmd, 'rb');
             } finally {
@@ -98,6 +99,7 @@ class WindowsTestbase extends Testbase
                     pclose($pipe);
                 }
             }
+            error_reporting ($errorReporting);
 
         } else {
             if ($background ? '/B' : '') {

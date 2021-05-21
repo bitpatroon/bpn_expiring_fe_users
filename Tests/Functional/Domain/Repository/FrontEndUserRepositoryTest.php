@@ -28,9 +28,10 @@
 namespace BPN\BpnExpiringFeUsers\Tests\Functional\Domain\Repository;
 
 use BPN\BpnExpiringFeUsers\Domain\Models\Config;
+use BPN\BpnExpiringFeUsers\Domain\Repository\ExpiringGroupRepository;
 use BPN\BpnExpiringFeUsers\Domain\Repository\FrontEndUserRepository;
+use BPN\BpnExpiringFeUsers\Tests\Functional\FunctionalTestCase;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use \BPN\BpnExpiringFeUsers\Tests\Functional\FunctionalTestCase;
 
 class FrontEndUserRepositoryTest extends FunctionalTestCase
 {
@@ -43,11 +44,12 @@ class FrontEndUserRepositoryTest extends FunctionalTestCase
     const USER_ACCOUNT_NEVER_LOGGED_IN = 7;
     const USER_ACCOUNT_NO_EXPIRATION = 8;
     const USER_EXPIRING_GROUP_EXPIRES = 20;
+    const USER_NOT_MEMBER_OF_GROUP1 = 30;
+    const USER_MEMBER_OF_GROUP2 = 31;
 
     const SYSFOLDER = 1;
     const GROUP1 = 1;
     const GROUP2 = 2;
-    const GROUP3 = 3;
 
     /**
      * @var array Have styleguide loaded
@@ -57,12 +59,43 @@ class FrontEndUserRepositoryTest extends FunctionalTestCase
         'typo3conf/ext/bpn_expiring_fe_users',
     ];
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->importDataSet(__DIR__ . '/FrontEndUserRepositoryTestUserFixture.xml');
-        $this->importDataSet(__DIR__ . '/FrontEndUserRepositoryTestGroupFixture.xml');
+        $this->importDataSet(__DIR__.'/FrontEndUserRepositoryTestUserFixture.xml');
+        $this->importDataSet(__DIR__.'/FrontEndUserRepositoryTestGroupFixture.xml');
+
+        $this->updateValues('fe_users', ['lastlogin' => time() - 864000], ['username' => 'active-user-no-expiration']);
+        $this->updateValues('fe_users', ['lastlogin' => time() - 86400], ['username' => 'active-user-older-one-year']);
+        $this->updateValues('fe_users', ['endtime' => strtotime('+3 days')], ['username' => 'user-expires-one-week']);
+        $this->updateValues('fe_users', ['endtime' => strtotime('-5 days')], ['username' => 'user-expired']);
+        $this->updateValues(
+            'fe_users',
+            ['endtime' => strtotime('-400 days')],
+            ['username' => 'user-has-been-expired-for']
+        );
+        $this->updateValues(
+            'fe_users',
+            [
+                'tx_expiringfegroups_groups' => implode('|', [1, strtotime('-1 month'), strtotime('+1 month')]),
+            ],
+            ['username' => 'user-with-expiring-groups']
+        );
+        $this->updateValues(
+            'fe_users',
+            [
+                'tx_expiringfegroups_groups' => implode(
+                    '|',
+                    [
+                        1,
+                        strtotime('-1 month'),
+                        strtotime('+4 days'),
+                    ]
+                ),
+            ],
+            ['username' => 'user-with-expiring-groups_expiring']
+        );
     }
 
     /**
@@ -72,8 +105,13 @@ class FrontEndUserRepositoryTest extends FunctionalTestCase
     public function getUserByConfigWithoutTest(Config $config, array $expectedUserNames)
     {
         $objectManagerProphecy = $this->prophesize(ObjectManager::class);
+
+        $expiringGroupRepository = new ExpiringGroupRepository($objectManagerProphecy->reveal());
         $frontEndUserRepository = new FrontEndUserRepository($objectManagerProphecy->reveal());
+        $frontEndUserRepository->injectExpiringGroupRepository($expiringGroupRepository);
         $users = $frontEndUserRepository->getUserByConfig($config);
+
+//        echo $frontEndUserRepository->getSql()['statement'].PHP_EOL;
 
         foreach ($expectedUserNames as $expectedUserName) {
             $found = false;
@@ -85,7 +123,7 @@ class FrontEndUserRepositoryTest extends FunctionalTestCase
             }
             self::assertTrue(
                 $found,
-                'Expected to find ' . $expectedUserName . ', but the user was not in the resultset'
+                'Expected to find '.$expectedUserName.', but the user was not in the resultset'
             );
         }
     }
@@ -95,14 +133,55 @@ class FrontEndUserRepositoryTest extends FunctionalTestCase
         return [
             [
                 'config'            => $this->getConfig(self::USER_ACCOUNT_NOT_LOGGEDIN_FOR),
+                'expectedUserNames' => ['user-not-loggedin-for-a-while',],
+            ],
+            [
+                'config'            => $this->getConfig(self::USER_ACCOUNT_OLDER_THAN),
                 'expectedUserNames' => [
                     'user-not-loggedin-for-a-while',
+                    'active-user-older-one-year',
                 ],
+            ],
+            [
+                'config'            => $this->getConfig(self::USER_ACCOUNT_IS_DISABLED),
+                'expectedUserNames' => ['user-disabled',],
+            ],
+            [
+                'config'            => $this->getConfig(self::USER_ACCOUNT_EXPIRES_IN),
+                'expectedUserNames' => ['user-expires-one-week',],
+            ],
+            [
+                'config'            => $this->getConfig(self::USER_ACCOUNT_IS_EXPIRED),
+                'expectedUserNames' => ['user-expired',],
+            ],
+            [
+                'config'            => $this->getConfig(self::USER_ACCOUNT_HAS_BEEN_EXPIRED_FOR),
+                'expectedUserNames' => ['user-has-been-expired-for',],
+            ],
+            [
+                'config'            => $this->getConfig(self::USER_ACCOUNT_NEVER_LOGGED_IN),
+                'expectedUserNames' => ['user-never-logged-in',],
+            ],
+            [
+                'config'            => $this->getConfig(self::USER_ACCOUNT_NO_EXPIRATION),
+                'expectedUserNames' => ['user-never-logged-in', 'active-user-no-expiration'],
+            ],
+            [
+                'config'            => $this->getConfig(self::USER_EXPIRING_GROUP_EXPIRES),
+                'expectedUserNames' => ['user-with-expiring-groups_expiring', 'user-with-expiring-groups'],
+            ],
+            [
+                'config'            => $this->getConfig(self::USER_NOT_MEMBER_OF_GROUP1),
+                'expectedUserNames' => ['user-not-memberof-group1'],
+            ],
+            [
+                'config' => $this->getConfig(self::USER_MEMBER_OF_GROUP2),
+                'expectedUserNames' => ['user-not-memberof-group1'],
             ],
         ];
     }
 
-    private function getConfig(int $type) : Config
+    private function getConfig(int $type): Config
     {
         $config = new Config();
 
@@ -114,16 +193,80 @@ class FrontEndUserRepositoryTest extends FunctionalTestCase
                     ->setSysfolder(self::SYSFOLDER)
                     ->setAndor('AND');
                 break;
+            case self::USER_ACCOUNT_OLDER_THAN:
+                $config
+                    ->setCondition2(1)
+                    ->setDays(90)
+                    ->setSysfolder(self::SYSFOLDER)
+                    ->setAndor('AND');
+                break;
+            case self::USER_ACCOUNT_IS_DISABLED:
+                $config
+                    ->setCondition3(1)
+                    ->setDays(90)
+                    ->setSysfolder(self::SYSFOLDER)
+                    ->setAndor('AND');
+                break;
+            case self::USER_ACCOUNT_EXPIRES_IN:
+                $config
+                    ->setCondition4(1)
+                    ->setDays(30)
+                    ->setSysfolder(self::SYSFOLDER)
+                    ->setAndor('AND');
+                break;
+            case self::USER_ACCOUNT_IS_EXPIRED:
+                $config
+                    ->setCondition5(1)
+                    ->setDays(30)
+                    ->setSysfolder(self::SYSFOLDER)
+                    ->setAndor('AND');
+                break;
+            case self::USER_ACCOUNT_HAS_BEEN_EXPIRED_FOR:
+                $config
+                    ->setCondition6(1)
+                    ->setDays(30)
+                    ->setSysfolder(self::SYSFOLDER)
+                    ->setAndor('AND');
+                break;
+            case self::USER_ACCOUNT_NEVER_LOGGED_IN:
+                $config
+                    ->setCondition7(1)
+                    ->setDays(30)
+                    ->setSysfolder(self::SYSFOLDER)
+                    ->setAndor('AND');
+                break;
+            case self::USER_ACCOUNT_NO_EXPIRATION:
+                $config
+                    ->setCondition8(1)
+                    ->setDays(30)
+                    ->setSysfolder(self::SYSFOLDER)
+                    ->setAndor('AND');
+                break;
+            case self::USER_EXPIRING_GROUP_EXPIRES:
+                $config
+                    ->setCondition20(1)
+                    ->setDays(30)
+                    ->setExpiringGroup('1')
+                    ->setSysfolder(self::SYSFOLDER)
+                    ->setAndor('AND');
+                break;
+            case self::USER_NOT_MEMBER_OF_GROUP1:
+                $config
+                    ->setSysfolder(self::SYSFOLDER)
+                    ->setAndor('AND')
+                    ->setNoMemberOf('1');
+                break;
+            case self::USER_MEMBER_OF_GROUP2:
+                $config
+                    ->setSysfolder(self::SYSFOLDER)
+                    ->setAndor('AND')
+                    ->setMemberOf('2');
+                break;
 
             default:
                 throw new \RuntimeException("Invalid type. {$type} is unknown.", 1621601234062);
         }
 
         return $config;
-    }
-
-    private function updateValues(string $table, int $uid, array $updateFields)
-    {
-        // todo: implement to ensure some the users are updated correctly
     }
 }

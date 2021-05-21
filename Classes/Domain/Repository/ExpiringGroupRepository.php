@@ -33,9 +33,6 @@ class ExpiringGroupRepository extends Repository
 {
     const RE_GROUP_UIDS = '/(\d+)\|(\d+)\|(\d+)\**/';
 
-    /** @var array */
-    private $expireGroups = [];
-
     /**
      * Gets the group uids which are active
      *
@@ -101,10 +98,7 @@ class ExpiringGroupRepository extends Repository
      */
     public function getAllExpiringGroups(?string $expiringGroupsList)
     {
-        $result = $this->expireGroups;
-        if (!$this->expireGroups) {
-            $this->expireGroups = [];
-        }
+        $result = [];
 
         if (!$expiringGroupsList) {
             return $result;

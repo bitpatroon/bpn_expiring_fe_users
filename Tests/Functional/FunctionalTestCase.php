@@ -32,6 +32,7 @@ use mysqli;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 use TYPO3\CMS\Core\Cache\Backend\NullBackend;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\DatabaseConnectionWrapper;
 use TYPO3\TestingFramework\Core\Testbase;
@@ -482,4 +483,19 @@ class FunctionalTestCase extends \TYPO3\TestingFramework\Core\Functional\Functio
             define('PROJECT_ROOT', $folder);
         }
     }
+
+    protected function updateValuesByUid(string $table, int $uid, array $updateFields)
+    {
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+        $connection
+            ->update($table, $updateFields, ['uid' => $uid]);
+    }
+
+    protected function updateValues(string $table, array $updateFields, array $whereFields)
+    {
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+        $connection
+            ->update($table, $updateFields, $whereFields);
+    }
+
 }

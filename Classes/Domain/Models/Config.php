@@ -223,9 +223,10 @@ class Config extends AbstractEntity
     public function getSysfolderAsArray() : array
     {
         $sysFolder = $this->getSysfolder();
-        if(!$sysFolder){
+        if (!$sysFolder) {
             return [];
         }
+
         return GeneralUtility::intExplode(',', $sysFolder);
     }
 
@@ -329,7 +330,7 @@ class Config extends AbstractEntity
 
     public function getExpiringGroup() : string
     {
-        return $this->expiringGroup;
+        return $this->expiringGroup ?? '';
     }
 
     public function setExpiringGroup(string $expiringGroup) : Config
@@ -341,7 +342,7 @@ class Config extends AbstractEntity
 
     public function getGroupsToRemove() : string
     {
-        return $this->groupsToRemove;
+        return $this->groupsToRemove ?? '';
     }
 
     public function setGroupsToRemove(string $groupsToRemove) : Config
@@ -358,7 +359,7 @@ class Config extends AbstractEntity
 
     public function setCondition1(int $condition1) : Config
     {
-        $this->condition1 = $condition1;
+        $this->condition1 = $condition1 ? 1 : 0;
 
         return $this;
     }
@@ -370,7 +371,7 @@ class Config extends AbstractEntity
 
     public function setCondition2(int $condition2) : Config
     {
-        $this->condition2 = $condition2;
+        $this->condition2 = $condition2 ? 1 : 0;
 
         return $this;
     }
@@ -382,7 +383,7 @@ class Config extends AbstractEntity
 
     public function setCondition3(int $condition3) : Config
     {
-        $this->condition3 = $condition3;
+        $this->condition3 = $condition3 ? 1 : 0;
 
         return $this;
     }
@@ -394,7 +395,7 @@ class Config extends AbstractEntity
 
     public function setCondition4(int $condition4) : Config
     {
-        $this->condition4 = $condition4;
+        $this->condition4 = $condition4 ? 1 : 0;
 
         return $this;
     }
@@ -404,9 +405,9 @@ class Config extends AbstractEntity
         return (int)$this->condition5;
     }
 
-    public function setCondition5(int $condition5) : Config
+    public function setCondition5(int $condition5 = 1) : Config
     {
-        $this->condition5 = $condition5;
+        $this->condition5 = $condition5 ? 1 : 0;
 
         return $this;
     }
@@ -418,7 +419,7 @@ class Config extends AbstractEntity
 
     public function setCondition6(int $condition6) : Config
     {
-        $this->condition6 = $condition6;
+        $this->condition6 = $condition6 ? 1 : 0;
 
         return $this;
     }
@@ -430,7 +431,7 @@ class Config extends AbstractEntity
 
     public function setCondition7(int $condition7) : Config
     {
-        $this->condition7 = $condition7;
+        $this->condition7 = $condition7 ? 1 : 0;
 
         return $this;
     }
@@ -442,7 +443,7 @@ class Config extends AbstractEntity
 
     public function setCondition8(int $condition8) : Config
     {
-        $this->condition8 = $condition8;
+        $this->condition8 = $condition8 ? 1 : 0;
 
         return $this;
     }
@@ -454,7 +455,7 @@ class Config extends AbstractEntity
 
     public function setCondition20(int $condition20) : Config
     {
-        $this->condition20 = $condition20;
+        $this->condition20 = $condition20 ? 1 : 0;
 
         return $this;
     }
