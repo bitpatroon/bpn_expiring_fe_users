@@ -1,0 +1,41 @@
+{
+    "name": "bitpatroon/bpn_expiring_fe_users",
+    "type": "typo3-cms-extension",
+    "description": "Detects an expiring user and sends that person an email with a link to extend the account",
+    "keywords": [
+        "typo3",
+        "groups",
+        "security",
+        "service"
+    ],
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Sjoerd Zonneveld",
+            "homepage": "https://www.bitpatroon.nl",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "bitpatroon/bpn_expiring_fe_groups": "^10.4"
+    },
+    "config": {
+        "optimize-autoloader": true
+    },
+    "autoload": {
+        "psr-4": {
+            "BPN\\ExpiringFeGroups\\": "Classes"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BPN\\ExpiringFeGroups\\Tests\\": "Tests"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "bpn_expiring_fe_users"
+        }
+    }
+}

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.0" standalone="yes">
+  <file source-language="en" datatype="plaintext" original="messages" data="2019-01-07T13-16-00" product-name="itypo_expiring_fe_users">
+    <header/>
+    <body>
+      <trans-unit id="scheduler.title" xml:space="preserve">
+        <source>iTypo Expiring FE Users</source>
+      </trans-unit>
+      <trans-unit id="scheduler.description" xml:space="preserve">
+        <source>Executes all enabled Expiring FE Users configuration records.</source>
+      </trans-unit>
+      <trans-unit id="tt_content.list_type_pi1" xml:space="preserve">
+        <source>iTypo Expiring FE Users Extend Account</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config" xml:space="preserve">
+        <source>iTypo Expiring FE Users Configuration Record</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.todo" xml:space="preserve">
+        <source>Action:</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.0" xml:space="preserve">
+        <source>Choose an action to perform..</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.1" xml:space="preserve">
+        <source>Send e-mail to users</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.2" xml:space="preserve">
+        <source>Disable users</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.3" xml:space="preserve">
+        <source>Delete users (users will remain in database)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.4" xml:space="preserve">
+        <source>Remove usergroup from users</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.5" xml:space="preserve">
+        <source>Set users to expire after X days</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.disabled" xml:space="preserve">
+        <source>Disabled? (Record will not be executed at all on scheduler run)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.testmode" xml:space="preserve">
+        <source>TESTMODE: (No actual actions will be performed, only logged which records would have been affected)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.limiter" xml:space="preserve">
+        <source>Limit the number of users affected by each run.</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.title" xml:space="preserve">
+        <source>Title:</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.sysfolder" xml:space="preserve">
+        <source>Folder(s) where the fe_users are stored:</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.memberOf" xml:space="preserve">
+        <source>AND User must be a member of: (select none for all users in above selected folder(s))</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.andor" xml:space="preserve">
+        <source>How should the groups selected above be treated, AND or OR?</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.noMemberOf" xml:space="preserve">
+        <source>AND User must NOT be a member of:</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.expiringGroup" xml:space="preserve">
+        <source>AND One of these groups is about to expire. (Only use together with "Above selected group expires within.." checkbox)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.groupsToRemove" xml:space="preserve">
+        <source>Remove these groups from user:</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.andor_not" xml:space="preserve">
+        <source>How should the groups selected above be treated, AND or OR?</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.conditions" xml:space="preserve">
+        <source>Condition(s): (AND)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.condition1" xml:space="preserve">
+        <source>User has not logged in for..</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.condition2" xml:space="preserve">
+        <source>Account older than..</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.condition3" xml:space="preserve">
+        <source>Account is disabled.</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.condition4" xml:space="preserve">
+        <source>Account expires within..</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.condition5" xml:space="preserve">
+        <source>Account is expired.</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.condition6" xml:space="preserve">
+        <source>Account has been expired for..</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.condition7" xml:space="preserve">
+        <source>Account has never logged in.</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.condition8" xml:space="preserve">
+        <source>Account has no expiration date set.</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.condition20" xml:space="preserve">
+        <source>Above selected group expires within.. (Must select a group in the "AND This group is about to expire." field)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.days" xml:space="preserve">
+        <source>..days:</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.email_test" xml:space="preserve">
+        <source>E-mail Test Address (If entered, all e-mails will be sent to this address instead of the real user address. Also actions like setting expire date will not be performed.)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.email_fromName" xml:space="preserve">
+        <source>E-mail Sender Name:</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.email_from" xml:space="preserve">
+        <source>E-mail Sender Address:</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.email_bcc" xml:space="preserve">
+        <source>BCC E-mail Address: (Send a BCC of all e-mails sent to this address as well)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.email_subject" xml:space="preserve">
+        <source>E-mail Subject:</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.email_text" xml:space="preserve">
+        <source>E-mail Bodytext: (Marker ###NAME### will be replaced with users name) (###LINK### When extend link is enabled) (Only for Group expires within: ###GROUPNAMES###)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.expires_in" xml:space="preserve">
+        <source>Automatically set account to expire in: (in days) (set to 0 to not automatically expire)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.reactivate_link" xml:space="preserve">
+        <source>Replace ###LINK### marker with link to:</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.reactivate_link.I.0" xml:space="preserve">
+        <source>Dont add link</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.reactivate_link.I.1" xml:space="preserve">
+        <source>Extend account</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.reactivate_link.I.20" xml:space="preserve">
+        <source>Extend group (probably want to use this when using Group expires within condition)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.extend_by" xml:space="preserve">
+        <source>Extend by: (in days). Its best to not change this after users have been mailed. This is also used to calculate if its been long enough ago to mail users again.</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.page" xml:space="preserve">
+        <source>Full URL to the Page where the Extend plugin resides (REQUIRED when adding Extend link. Its where people go after they clicked the extend link) (Example: http://www.example.com/extend/)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.allmatchingusers" xml:space="preserve">
+        <source>These users match the currently configured conditions.</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.nextmatchingusers" xml:space="preserve">
+        <source>These users match the currently configured conditions. (These users will be affected on next run)</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.log" xml:space="preserve">
+        <source>Log</source>
+      </trans-unit>
+      <trans-unit id="tx_bpnexpiringfeusers_config.excludesummer" xml:space="preserve">
+        <source>Exclude in the summer (July / August)</source>
+      </trans-unit>
+      <trans-unit id="mailAction.extendby" xml:space="preserve">
+        <source>Verleng mijn account</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

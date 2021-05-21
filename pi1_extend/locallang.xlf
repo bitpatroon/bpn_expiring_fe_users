@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.0" standalone="yes">
+  <file source-language="en" datatype="plaintext" original="messages" data="2019-01-07T14-10-10" product-name="itypo_expiring_fe_users">
+    <header/>
+    <body>
+      <trans-unit id="pi1.extended" xml:space="preserve">
+        <source>Your account has been extended.</source>
+      </trans-unit>
+      <trans-unit id="pi1.extendedgroup" xml:space="preserve">
+        <source>Your group membership has been extended.</source>
+      </trans-unit>
+      <trans-unit id="pi1.expired" xml:space="preserve">
+        <source>The link has expired and is no longer valid. It can only be used for a few days after receiving it.</source>
+      </trans-unit>
+      <trans-unit id="pi1.invalidhash" xml:space="preserve">
+        <source>Invalid link.</source>
+      </trans-unit>
+      <trans-unit id="pi1.alreadyextended" xml:space="preserve">
+        <source>This account was already extended not too long ago, the link can not be used again.</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

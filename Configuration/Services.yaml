@@ -1,0 +1,13 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    BPN\BpnExpiringFeUsers\:
+        resource: '../Classes/*'
+
+    BPN\BpnExpiringFeUsers\Command\RunCommand:
+        tags:
+            - name: 'console.command'
+              command: 'expiring_users:run'

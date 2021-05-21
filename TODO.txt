@@ -1,0 +1,5 @@
+- add hooks to provide more actions
+- write a manual
+- option to allow running 1 specific task instead of all via scheduler? or set a pid
+- add and/or choice to conditions, they are now AND
+- php class structure is messed up, statics etc
