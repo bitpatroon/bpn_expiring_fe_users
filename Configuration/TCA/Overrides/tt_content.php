@@ -9,7 +9,7 @@ use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['itypo_expiring_fe_users_pi1'] = 'layout,select_key,pages,recursive';
+$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['bpn_expiring_fe_users_pi1'] = 'layout,select_key,pages,recursive';
 
 ExtensionManagementUtility::addPlugin(
     [
@@ -18,7 +18,7 @@ ExtensionManagementUtility::addPlugin(
         'EXT:bpn_expiring_fe_users/ext_icon.png'
     ],
     'list_type',
-    'itypo_expiring_fe_users'
+    'bpn_expiring_fe_users'
 );
 
 /** @var IconRegistry $iconRegistry */
