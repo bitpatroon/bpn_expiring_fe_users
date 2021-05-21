@@ -5,156 +5,207 @@
     <body>
       <trans-unit id="scheduler.title" xml:space="preserve">
         <source>Expiring Frontend Users</source>
+        <target>Verlopende front-end gebruikers</target>
       </trans-unit>
       <trans-unit id="scheduler.description" xml:space="preserve">
         <source>Executes all enabled Expiring Frontend Users configuration records</source>
+        <target>Voert alle verlopende gebruiker configuraties uit</target>
       </trans-unit>
       <trans-unit id="tt_content.list_type_pi1" xml:space="preserve">
         <source>Account Extender</source>
+        <target>Account verlenger</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config" xml:space="preserve">
         <source>Expiring Frontend Users Configuration</source>
+        <target>Verlopende Frontend Users Configuratie</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.todo" xml:space="preserve">
         <source>Action</source>
+        <target>Actie</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.0" xml:space="preserve">
         <source>Choose an action to perform</source>
+        <target>Kies een actie</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.1" xml:space="preserve">
         <source>Send e-mail to users</source>
+        <target>Stuur een e-mail naar gebruikers</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.2" xml:space="preserve">
         <source>Disable users</source>
+        <target>Gebruikers uitschakelen</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.3" xml:space="preserve">
         <source>Delete users (users will remain in database)</source>
+        <target>Gebruikers verwijderen (gebruikers blijven in het systeem)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.4" xml:space="preserve">
         <source>Remove usergroup from users</source>
+        <target>Verwijder een gebruikersgroep van een gebruiker</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.todo.I.5" xml:space="preserve">
         <source>Set users to expire after X days</source>
+        <target>Laat de gebruikers na X dagen verlopen</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.disabled" xml:space="preserve">
         <source>Disabled</source>
+        <target>Uitgeschakeld</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.testmode" xml:space="preserve">
         <source>Testmode No changes, just logging.</source>
+        <target>Testmodus. Geen wijzingen alleen logging.</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.limiter" xml:space="preserve">
         <source>The number of affected users per run</source>
+        <target>Het aantal gebruikers per run</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.title" xml:space="preserve">
         <source>Title</source>
+        <target>Titel</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.sysfolder" xml:space="preserve">
         <source>Folder(s) where the fe_users are stored</source>
+        <target>Gebruikers opslag map</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.memberOf" xml:space="preserve">
         <source>AND User must be a member of: (select none for all users in above selected folder(s))</source>
+        <target>EN de gebruiker is lid van de groep: (Leeglaten selecteert alle gebruikers in bovenstaande map)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.andor" xml:space="preserve">
         <source>How should the groups selected above be treated, AND or OR?</source>
+        <target>Of een van beide (OF) of allebei (EN)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.noMemberOf" xml:space="preserve">
         <source>AND User must NOT be a member of</source>
+        <target>EN gebruiker mag geen lid zijn van</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.expiringGroup" xml:space="preserve">
         <source>AND One of these groups is about to expire.</source>
+        <target>EN een van de volgende groepen gaat verlopen.</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.groupsToRemove" xml:space="preserve">
         <source>Remove these groups from user</source>
+        <target>Verwijder deze groepen van de gebruiker</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.andor_not" xml:space="preserve">
         <source>How should the groups selected above be treated, AND or OR?</source>
+        <target>Bovenstaande groepen allebei (EN) of een van (OF)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.conditions" xml:space="preserve">
         <source>Conditions: All (AND)</source>
+        <target>Condities: Alle (EN)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition1" xml:space="preserve">
         <source>User has not logged in for...</source>
+        <target>Gebruiker is niet ingelogd sinds in...</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition2" xml:space="preserve">
         <source>Account older than...</source>
+        <target>Account is ouder dan...</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition3" xml:space="preserve">
         <source>Account is disabled</source>
+        <target>Account is uitgeschakeld</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition4" xml:space="preserve">
         <source>Account expires within... (#days)</source>
+        <target>Account verloopt in ... (#dagen)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition5" xml:space="preserve">
         <source>Account is expired</source>
+        <target>Account is verlopen</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition6" xml:space="preserve">
         <source>Account has been expired for..</source>
+        <target>Account is inmiddels verlopen ... (#dagen)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition7" xml:space="preserve">
         <source>Account has never logged in</source>
+        <target>Account is nooit gebruikt (geen inlog)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition8" xml:space="preserve">
         <source>Account has no expiration date set</source>
+        <target>Account heeft geen verlopende einddatum</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition20" xml:space="preserve">
         <source>Above selected group expires within.. (Must select a group in the "AND This group is about to expire." field)</source>
+        <target>Bovenstaande geselecteerde groepen verlopen in .. (Gebuik met conditie "groep gaat verlopen")</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.days" xml:space="preserve">
         <source>#days</source>
+        <target>#dagen</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.email_test" xml:space="preserve">
         <source>E-mail Test Address (If entered, all e-mails will be sent to this address instead of the real user address. Also actions like setting expire date will not be performed.)</source>
+        <target>E-mail Address test (Als ingevoerd, dan worden alle berichten naar get ingevulde adres gestuurd! Acties als het aanpassen van de verloopdatum worden niet toegepast.)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.email_fromName" xml:space="preserve">
         <source>E-mail Sender Name</source>
+        <target>E-mail Afzender naam</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.email_from" xml:space="preserve">
         <source>E-mail Sender Address</source>
+        <target>E-mail adres afzender</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.email_bcc" xml:space="preserve">
         <source>BCC E-mail Address: (Send a BCC of all e-mails sent to this address as well)</source>
+        <target>BCC E-mail adres (Zet dit adres in het BCC voor alle e-mails)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.email_subject" xml:space="preserve">
         <source>E-mail Subject</source>
+        <target>E-mail onderwerp</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.email_text" xml:space="preserve">
         <source>E-mail Bodytext: (###NAME### will be replaced with users name) (###LINK### When extend link is enabled) (Only for Group expires within: ###GROUPNAMES###)</source>
+        <target>E-mail bodytext: (###NAME### wordt vervangen door de naam van de gebruiker) (###LINK### De verleng link, mits geactiveerd) (Verlopende groepsnaam: ###GROUPNAMES###)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.expires_in" xml:space="preserve">
         <source>Automatically set account to expire in: (in days) (set to 0 to not automatically expire)</source>
+        <target>Automatisch instellen dat een account verloopt in (#dagen). (0 om niet automatisch te verlopen)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.reactivate_link" xml:space="preserve">
         <source>Replace ###LINK### marker with link to</source>
+        <target>Vervang ###LINK### marker met link</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.reactivate_link.I.0" xml:space="preserve">
         <source>Dont add link</source>
+        <target>Link niet toevoegen</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.reactivate_link.I.1" xml:space="preserve">
         <source>Extend account</source>
+        <target>Account verlengen</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.reactivate_link.I.20" xml:space="preserve">
         <source>Extend group (probably want to use this when using Group expires within condition)</source>
+        <target>Verlend groep (Zet als een "verlopende groep conditie aanstaat)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.extend_by" xml:space="preserve">
         <source>Extend by: (in days). Its best to not change this after users have been mailed. This is also used to calculate if its been long enough ago to mail users again</source>
+        <target>Verlengen met (#dagen). Niet veranderen nadat berichten verzonden zijn. Wordt tevens gebruikt bij het berekenen wanneer e-mail opnieuw moet worden verzonden.</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.page" xml:space="preserve">
         <source>Full URL to the Page where the Extend plugin resides (REQUIRED when adding Extend link. Its where people go after they clicked the extend link) (Example: http://www.example.com/extend/)</source>
+        <target>Volledige URL naar de verleng pagina. (Benodigd wanneer de verleng link wordt ingevoegd.) (Example: http://www.example.com/extend/)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.allmatchingusers" xml:space="preserve">
         <source>These users match the currently configured conditions</source>
+        <target>De volgende gebruikers voldoen aan de gestelde criteria</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.nextmatchingusers" xml:space="preserve">
         <source>These users match the currently configured conditions. (These users will be affected on next run)</source>
+        <target>De volgende gebruikers voldoen aan de gestelde criteria en de actie wordt toegepast tijdens de volgende run.</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.log" xml:space="preserve">
         <source>Log</source>
+        <target>Logboek</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.excludesummer" xml:space="preserve">
         <source>Exclude in the summer (July / August)</source>
+        <target>Uitsluiten in de zomer maanden (juli en augustus)</target>
       </trans-unit>
       <trans-unit id="mailAction.extendby" xml:space="preserve">
         <source>Extend the account</source>
+        <target>Verleng het account</target>
       </trans-unit>
     </body>
   </file>
