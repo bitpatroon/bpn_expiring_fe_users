@@ -28,8 +28,8 @@
 namespace BPN\BpnExpiringFeUsers\Command;
 
 use BPN\BpnExpiringFeUsers\Controller\HandleActionController;
-use BPN\BpnExpiringFeUsers\Domain\Models\Config;
-use BPN\BpnExpiringFeUsers\Domain\Models\FrontEndUser;
+use BPN\BpnExpiringFeUsers\Domain\Model\Config;
+use BPN\BpnExpiringFeUsers\Domain\Model\FrontEndUser;
 use BPN\BpnExpiringFeUsers\Domain\Repository\ConfigRepository;
 use BPN\BpnExpiringFeUsers\Domain\Repository\FrontEndUserRepository;
 use Symfony\Component\Console\Input\InputInterface;

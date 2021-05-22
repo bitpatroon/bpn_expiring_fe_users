@@ -26,12 +26,14 @@
 
 namespace BPN\BpnExpiringFeUsers\Domain\Repository;
 
-use BPN\BpnExpiringFeUsers\Domain\Models\ExpiringGroupModel;
+use BPN\BpnExpiringFeUsers\Domain\Model\ExpiringGroupModel;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
 class ExpiringGroupRepository extends Repository
 {
     const RE_GROUP_UIDS = '/(\d+)\|(\d+)\|(\d+)\**/';
+    const FIELD = 'tx_bpnexpiringfegroups_groups';
 
     /**
      * Gets the group uids which are active
@@ -94,9 +96,8 @@ class ExpiringGroupRepository extends Repository
      * @param string $expiringGroupsList An expiring groups list
      *
      * @return ExpiringGroupModel[]
-     * @throws \Exception
      */
-    public function getAllExpiringGroups(?string $expiringGroupsList)
+    public function getAllExpiringGroups(?string $expiringGroupsList) : array
     {
         $result = [];
 
@@ -128,5 +129,53 @@ class ExpiringGroupRepository extends Repository
         }
 
         return $result;
+    }
+
+    /**
+     * Converts the expiring groups for a user to an array.
+     */
+    public function getExpiringGroups(string $expiringGroupsList) : array
+    {
+        $result = [];
+
+        foreach (GeneralUtility::trimExplode('*', $expiringGroupsList) as $entry) {
+            if ($entry) {
+                $result[] = GeneralUtility::trimExplode('|', $entry);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Converts the expiring groups for a user to an array.
+     *
+     * @deprecated Use getExpiringGroups
+     */
+    public function getExpiringGroupsArray(string $expiringGroupsList) : array
+    {
+        return $this->getExpiringGroups($expiringGroupsList);
+    }
+
+    /**
+     * Checks if a user has a newer exp group record for the groupid found and the days in the future given.
+     *
+     * @param $userRecord
+     * @param $groupId
+     * @param $daysInTheFuture
+     *
+     * @return bool
+     */
+    public function checkForNewerExpRecord(array $userRecord, int $groupId, int $daysInTheFuture)
+    {
+        $expiringGroups = $this->getExpiringGroups($userRecord[self::FIELD]);
+
+        foreach ($expiringGroups as $expiringGroup) {
+            if (($expiringGroup[0] == $groupId) && $expiringGroup[2] > $daysInTheFuture) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

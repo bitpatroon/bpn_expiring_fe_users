@@ -28,13 +28,8 @@ namespace BPN\BpnExpiringFeUsers\Helpers;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-/**
- * Class HookHelpers
- * @author  : SZO
- * @fqn     : SPL\Itypo\HookHelpers
- * @internal
- * @deprecated Use Event please!
- */
+
+
 class HookHelpers
 {
 

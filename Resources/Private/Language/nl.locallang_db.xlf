@@ -184,8 +184,7 @@
         <target>Verlengen met (#dagen). Niet veranderen nadat berichten verzonden zijn. Wordt tevens gebruikt bij het berekenen wanneer e-mail opnieuw moet worden verzonden.</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.page" xml:space="preserve">
-        <source>Full URL to the Page where the Extend plugin resides (REQUIRED when adding Extend link. Its where people go after they clicked the extend link) (Example: http://www.example.com/extend/)</source>
-        <target>Volledige URL naar de verleng pagina. (Benodigd wanneer de verleng link wordt ingevoegd.) (Example: http://www.example.com/extend/)</target>
+<source>Full URL to the Page where the Extend plugin resides (REQUIRED when adding Extend link.) (Example: http://www.example.com/extend/)</source>        <target>Volledige URL naar de verleng pagina. (Benodigd wanneer de verleng link wordt ingevoegd.) (Example: http://www.example.com/extend/)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.allmatchingusers" xml:space="preserve">
         <source>These users match the currently configured conditions</source>
@@ -206,6 +205,10 @@
       <trans-unit id="mailAction.extendby" xml:space="preserve">
         <source>Extend the account</source>
         <target>Verleng het account</target>
+      </trans-unit>
+      <trans-unit id="mailAction.or-copy-paste" xml:space="preserve">
+        <source>or copy and paste in the browser</source>
+        <target>of kopieer en plak in de browser</target>
       </trans-unit>
     </body>
   </file>

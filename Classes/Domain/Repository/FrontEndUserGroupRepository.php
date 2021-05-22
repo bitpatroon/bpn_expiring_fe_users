@@ -27,7 +27,7 @@
 
 namespace BPN\BpnExpiringFeUsers\Domain\Repository;
 
-use BPN\BpnExpiringFeUsers\Domain\Models\FrontEndUserGroup;
+use BPN\BpnExpiringFeUsers\Domain\Model\FrontEndUserGroup;
 
 class FrontEndUserGroupRepository extends \TYPO3\CMS\Extbase\Domain\Repository\FrontendUserRepository
 {
@@ -55,5 +55,19 @@ class FrontEndUserGroupRepository extends \TYPO3\CMS\Extbase\Domain\Repository\F
         }
 
         return null;
+    }
+
+    /**
+     * @param int[] $uids
+     *
+     * @return string[]
+     */
+    public function getGroupNames(array $uids) : array
+    {
+        $result = [];
+        foreach($uids as $uid){
+            $result[$uid] = $this->getGroupName($uid);
+        }
+        return $result;
     }
 }

@@ -27,11 +27,12 @@
 
 namespace BPN\BpnExpiringFeUsers\Domain\Repository;
 
-use BPN\BpnExpiringFeUsers\Domain\Models\Config;
+use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 use BPN\BpnExpiringFeUsers\Service\DateService;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
 class ConfigRepository extends Repository
@@ -89,100 +90,40 @@ class ConfigRepository extends Repository
         return $queryBuilder->execute()->fetchAllAssociative();
     }
 
-    /**
-     * Finds the matching users for a job record.
-     *
-     * @param array    $config       : row with job record info
-     * @param bool     $preview      true to preview. False to show for real!
-     * @param int|null $userId
-     * @param bool     $allowExpired true to include expired users
-     *
-     * @return array $users: array with all users found
-     */
-    public function findMatchingUsers(Config $config, $preview = false, $userId = null, $allowExpired = false) : array
+    public function allowHiddenRecords()
     {
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($rec);
+        $typo3QuerySettings = new Typo3QuerySettings();
+        $typo3QuerySettings
+            ->setIgnoreEnableFields(true)
+            ->setIncludeDeleted(false)
+            ->setRespectStoragePage(false);
+        $this->setDefaultQuerySettings($typo3QuerySettings);
+    }
 
-        // check whether compatible extension is loaded
-        $exp_fe_groups = ExtensionManagementUtility::isLoaded('itypo_expiring_fe_groups');
-
-        if (!$preview && $this->dateService->isSummerAndExcluded($config)) {
-            return [];
-        }
-
-        $users = $this->getUserByConfig($config);
-
-        $users = [];
-
-        foreach ($rows as $currentUserId => $row) {
-            if ($exp_fe_groups && 1 == $config['condition20'] && $config['expiringGroup']) {    // now filter the users which are not a member of the group at all or not expiring within the set days
-                $expiringGroups = $expiringGroupRepository->getActiveExpiringGroups(
-                    $row['tx_itypoexpiringfegroups_groups']
-                );
-                foreach ($expiringGroups as $expiringGroup) {
-                    // check whether this record actually concerns the selected group, the query above might accidentally select the wrong user because of the LIKE (can match in timestamp)
-                    if (false !== array_search($expiringGroup->getUid(), $expGrList)) {
-                        // it matches, now check if this group membership is about to expire
-                        if ($expiringGroup->getEnd() > time() && $expiringGroup->getEnd() < $daysfuture) {
-                            // Determine duration of expiring group (days)
-
-                            $durationExpiringGroupDays = ($expiringGroup->getEnd() - $expiringGroup->getStart(
-                                    )) / 86400;
-                            if ($durationExpiringGroupDays < (int)$config['days']) {
-                                continue;
-                            }
-
-                            // 1) skip users already in sentlog younger then extend_by days minus days
-                            // 2) also check if there isnt a record for the same group already with a newer exp date, if so, dont mail
-                            // 3) skip users already in the sent array, could happen when it has 2 memberships to this group which will expire soon. (done by uid as key)
-                            if (
-                                !mailAction::checkSentLog(
-                                    $config,
-                                    $currentUserId
-                                ) && !mailAction::checkForNewerExpRecord(
-                                    $config,
-                                    $row,
-                                    $expiringGroup->getUid(),
-                                    $daysfuture
-                                )) {
-                                $users[$currentUserId] = $row;
-                            }
-                        }
-                    }
-                }
-            } elseif ('1' == $config['todo'][0]) { // specific filter for mailAction
-                // skip users already in sentlog younger then extend_by days minus days
-                if (!mailAction::checkSentLog($config, $currentUserId)) {
-                    $users[] = $row;
-                }
-            } elseif ('5' == $config['todo'][0]) {
-                // specific filter for expireAction, skip users already in sentlog
-                if (!tx_bpnexpiringfeusers_helpers::isInSentLog($config['uid'], $currentUserId, $config['testmode'])) {
-                    $users[] = $row;
-                }
-            } else {
-                // for all other actions, skip users already in sentlog when testmode is on. otherwise testmode would always affect the first batch of users.
-                if ('1' == $config['testmode']) {
-                    if (
-                    !tx_bpnexpiringfeusers_helpers::isInSentLog(
-                        $config['uid'],
-                        $currentUserId,
-                        $config['testmode']
-                    )) {
-                        $users[] = $row;
-                    }
-                } else {
-                    $users[] = $row;
-                }
+    /**
+     * Find a record by uid even if it is hidden or deleted
+     *
+     * @param int $uid
+     * @param int|array $pid
+     * @return object
+     */
+    public function findByUidIncludingHidden($uid, $pid=false)
+    {
+        $query = $this->createQuery();
+        $query->getQuerySettings()
+            ->setIgnoreEnableFields(true)
+            ->setIncludeDeleted(false)
+            ->setRespectStoragePage(false);
+        if($pid){
+            if( is_array($pid) ){
+                $query->getQuerySettings()->setStoragePageIds( $pid );
             }
-
-            // make sure we never select more users then the limiter allows.
-            if (count($users) >= $config['limiter']) {
-                break;
+            elseif( is_integer($pid) ){
+                $query->getQuerySettings()->setStoragePageIds( [$pid] );
             }
         }
-
-        return $users;
+        $query->matching($query->equals('uid', $uid));
+        return $query->execute()->getFirst();
     }
 
 }

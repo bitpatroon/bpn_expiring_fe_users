@@ -25,7 +25,7 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-namespace BPN\BpnExpiringFeUsers\Domain\Models;
+namespace BPN\BpnExpiringFeUsers\Domain\Model;
 
 class FrontEndUserGroup extends \TYPO3\CMS\Extbase\Domain\Model\FrontendUserGroup
 {

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use BPN\BpnExpiringFeUsers\Domain\Models\Config;
-use BPN\BpnExpiringFeUsers\Domain\Models\FrontEndUserGroup;
-use BPN\BpnExpiringFeUsers\Domain\Models\FrontEndUser;
-use BPN\BpnExpiringFeUsers\Domain\Models\Log;
+use BPN\BpnExpiringFeUsers\Domain\Model\Config;
+use BPN\BpnExpiringFeUsers\Domain\Model\FrontEndUserGroup;
+use BPN\BpnExpiringFeUsers\Domain\Model\FrontEndUser;
+use BPN\BpnExpiringFeUsers\Domain\Model\Log;
 
 return [
     FrontEndUserGroup::class => [

@@ -1,0 +1,100 @@
+<?php
+
+/***************************************************************
+ *  Copyright notice
+ *
+ *  (c) 2021 Sjoerd Zonneveld  <code@bitpatroon.nl>
+ *  Date: 21-5-2021 21:54
+ *
+ *  All rights reserved
+ *
+ *  This script is part of the TYPO3 project. The TYPO3 project is
+ *  free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The GNU General Public License can be found at
+ *  http://www.gnu.org/copyleft/gpl.html.
+ *
+ *  This script is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
+
+namespace BPN\BpnExpiringFeUsers\Backend\UserFunction;
+
+use BPN\BpnExpiringFeUsers\Domain\Repository\ConfigRepository;
+use BPN\BpnExpiringFeUsers\Domain\Repository\FrontEndUserRepository;
+use BPN\BpnExpiringFeUsers\Domain\Repository\LogRepository;
+use BPN\BpnExpiringFeUsers\Service\DateService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+
+class NextMatchingUsers extends AbstractUsersView
+{
+    public function render()
+    {
+        $resultArray = $this->mergeChildReturnIntoExistingResult(
+            $this->initializeResultArray(),
+            $this->renderFieldInformation(),
+            false
+        );
+
+        $databaseRow = $this->data['databaseRow'];
+        $table = $this->data['tableName'];
+        if (ConfigRepository::TABLE != $table) {
+            return $this->showError(
+                'Not allowed to use this control on another record other than ' . ConfigRepository::TABLE,
+                $resultArray
+            );
+        }
+
+        if (!is_numeric($databaseRow['uid'])) {
+            return $this->showError('New Record detected. Please save first. [1621631328224]', $resultArray);
+        }
+
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+
+        /** @var ConfigRepository $configRepository */
+        $configRepository = $objectManager->get(ConfigRepository::class);
+
+        /** @var FrontEndUserRepository $frontEndUserRepository */
+        $frontEndUserRepository = $objectManager->get(FrontEndUserRepository::class);
+
+        /** @var DateService $dateService */
+        $dateService = GeneralUtility::makeInstance(ObjectManager::class)
+            ->get(DateService::class);
+
+        /** @var LogRepository $logRepository */
+        $logRepository = $objectManager->get(LogRepository::class);
+
+        $uid = $databaseRow['uid'];
+
+        if ($dateService->isSummerAndExcluded($databaseRow)) {
+            return $this->showError('Currently suspended', $resultArray);
+        }
+
+        $configRepository->allowHiddenRecords();
+        $config = $configRepository->findByUidIncludingHidden((int)$databaseRow['uid']);
+        if (!$config) {
+            return $this->showError('Configuration was not found [1621681787]', $resultArray);
+        }
+        $users = $frontEndUserRepository->getUserByConfig($config, 0, true, 1000);
+        if (!$users) {
+            return $this->showError('No users found', $resultArray);
+        }
+
+        return $this->renderView($users, $resultArray);
+    }
+
+    protected function showError(string $message, array $resultArray)
+    {
+        $resultArray['html'] = '<div class="alert alert-warning">' . $message . '</div>';
+
+        return $resultArray;
+    }
+}

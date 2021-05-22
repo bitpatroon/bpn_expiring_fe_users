@@ -27,33 +27,41 @@
 
 namespace BPN\BpnExpiringFeUsers\Domain\Repository;
 
+use BPN\BpnExpiringFeUsers\Domain\Model\Config;
+use BPN\BpnExpiringFeUsers\Traits\RepositoryTrait;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Generic\Exception\RepositoryException;
+use TYPO3\CMS\Extbase\Persistence\Repository;
 
-class LogRepository extends RepositoryException
+class LogRepository extends Repository
 {
     private const TABLE = 'tx_bpnexpiringfeusers_log';
 
-    /**
-     * Writes a line in the extension log table.
-     *
-     * @param array  $record  : Array with info about the job
-     * @param int    $userId  : fe_user uid
-     * @param string $action  : which action, can be info, warning, error, mail, extend, etc
-     * @param string $message : Any message
-     */
-    public function log(array $record, int $userId, string $action, string $message)
+    use RepositoryTrait;
+
+    public function addInfo(Config $config, int $userId, string $message)
+    {
+        $this->addLog($config, $userId, 'info', $message);
+    }
+
+    public function addError(Config $config, string $message)
+    {
+        $this->addLog($config, 0, 'error', $message);
+    }
+
+    public function addLog(Config $config, int $userId, string $action, string $message)
     {
         $insertFields = [
-            'crdate' => time(),
-            'job' => (int) $record['uid'],
+            'crdate'  => time(),
+            'job'     => $config->getUid(),
             'fe_user' => $userId,
-            'action' => $action,
-            'msg' => $message,
+            'action'  => $action,
+            'msg'     => $message,
         ];
 
-        if ('1' === (int) $record['testmode']) {
+        if ($config->getTestmode()) {
             $insertFields['testmode'] = '1';
         }
 
@@ -66,7 +74,7 @@ class LogRepository extends RepositoryException
     /**
      * Checks if a fe_user is found in a specific jobs sentlog.
      */
-    public function isInSentLog(int $job, int $userId, int $testmode): bool
+    public function isInSentLog(int $job, int $userId, int $testmode) : bool
     {
         $table = self::TABLE;
 
@@ -76,8 +84,8 @@ class LogRepository extends RepositoryException
             ['uid'],
             $table,
             [
-                'job' => $job,
-                'fe_user' => $userId,
+                'job'      => $job,
+                'fe_user'  => $userId,
                 'testmode' => $testmode,
             ]
         )->fetchAssociative();
@@ -88,8 +96,81 @@ class LogRepository extends RepositoryException
     /**
      * @deprecated Use isInSentLog
      */
-    public function hasLogEntries(int $job, int $user, int $testmode): bool
+    public function hasLogEntries(int $job, int $user, int $testmode) : bool
     {
         return $this->isInSentLog($job, $user, $testmode);
+    }
+
+    public function getByJob(int $uid)
+    {
+        $table = self::TABLE;
+
+        /** @var Connection $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable($table);
+
+        $data = $queryBuilder
+            ->select(['*'], $table, ['job' => $uid, 'deleted' => 0])
+            ->fetchAssociative();
+
+        $rows = [];
+        if ($data) {
+            foreach ($data as $row) {
+                $rows[(int)$row['uid']] = $row;
+            }
+        }
+
+        return $rows;
+    }
+
+    public function getByJobByUserWithUser(int $uid)
+    {
+        $table = self::TABLE;
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable($table);
+
+        $queryBuilder
+            ->select('*')
+            ->from($table)
+            ->leftJoin(
+                $table,
+                'fe_users',
+                'fe_users',
+                $queryBuilder->expr()->eq(
+                    $table . '.fe_user',
+                    $queryBuilder->quoteIdentifier('fe_users.uid')
+                )
+            )
+            ->where(
+                $queryBuilder->expr()->eq($table . '.job', $uid),
+                $queryBuilder->expr()->eq($table . '.deleted', 0),
+            )
+            ->orderBy($table . '.uid')
+            ->setMaxResults(1000);
+
+        return $queryBuilder->execute()->fetchAllAssociative();
+    }
+
+    public function findByJobUser(?int $jobId, int $userId, int $testmode, bool $newerThan)
+    {// see https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ApiOverview/Database/ExpressionBuilder
+
+        $table = self::TABLE;
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable($table);
+
+        $queryBuilder
+            ->select('*')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->eq('job', $jobId),
+                $queryBuilder->expr()->eq('fe_user', $userId),
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('testmode', $testmode),
+                $queryBuilder->expr()->gt('crdate', $newerThan)
+            );
+
+        return $queryBuilder->execute()->fetchAssociative();
     }
 }

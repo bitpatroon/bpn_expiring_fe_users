@@ -4,32 +4,8 @@ use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-/***************************************************************
- *  Copyright notice
- *
- *  (c) 2013 Sander Leeuwesteijn | iTypo <info@itypo.nl>
- *  All rights reserved
- *
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
 
-/**
- * Class tx_bpnexpiringfeusers_pi1
- */
+
 class tx_bpnexpiringfeusers_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugin
 {
     /**
@@ -45,7 +21,7 @@ class tx_bpnexpiringfeusers_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugi
     /**
      * @var string
      */
-    public $extKey = 'itypo_expiring_fe_users';                                // The extension key.
+    public $extKey = 'bpn_expiring_fe_users';                                // The extension key.
 
     /** @var $db DatabaseConnection */
     public $db;
@@ -103,7 +79,7 @@ class tx_bpnexpiringfeusers_pi1 extends \TYPO3\CMS\Frontend\Plugin\AbstractPlugi
                         // we extend the given group by the set amount of days (by adding a new entry)
                         $endgroup = strtotime('+' . (int)$this->get['e'] . ' days');
                         $group_entry = (int)$this->get['g'] . '|' . time() . '|' . $endgroup . '*';
-                        $query = "UPDATE fe_users SET tx_itypoexpiringfegroups_groups = CONCAT(tx_itypoexpiringfegroups_groups,'$group_entry'), tx_accountinfodialog_dirty = 1 WHERE uid = " . (int)$this->get['u'];
+                        $query = "UPDATE fe_users SET tx_expiringfegroups_groups = CONCAT(tx_expiringfegroups_groups,'$group_entry'), tx_accountinfodialog_dirty = 1 WHERE uid = " . (int)$this->get['u'];
                         mysqli_query($this->dbHandle, $query);
 
                         tx_bpnexpiringfeusers_helpers::log($rec, (int)$this->get['u'], 'extend', 'fe_user has extended group ' . (int)$this->get['g'] . ' until ' . date('d-m-y H:i:s', $endgroup));

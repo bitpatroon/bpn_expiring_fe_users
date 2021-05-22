@@ -25,7 +25,7 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-namespace BPN\BpnExpiringFeUsers\Domain\Models;
+namespace BPN\BpnExpiringFeUsers\Domain\Model;
 
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
@@ -36,7 +36,7 @@ class Log extends AbstractEntity
     /** @var int */
     protected $job;
     /**
-     * @var \BPN\BpnExpiringFeUsers\Domain\Models\FrontEndUser
+     * @var \BPN\BpnExpiringFeUsers\Domain\Model\FrontEndUser
      */
     protected $fe_user;
     /** @var int */

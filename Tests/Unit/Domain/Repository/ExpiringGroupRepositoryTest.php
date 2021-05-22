@@ -27,7 +27,7 @@
 
 namespace BPN\BpnExpiringFeUsers\Tests\Unit\Domain\Repository;
 
-use BPN\BpnExpiringFeUsers\Domain\Models\ExpiringGroupModel;
+use BPN\BpnExpiringFeUsers\Domain\Model\ExpiringGroupModel;
 use BPN\BpnExpiringFeUsers\Domain\Repository\ExpiringGroupRepository;
 use PHPUnit\Framework\Assert;
 use Prophecy\PhpUnit\ProphecyTrait;

@@ -27,7 +27,7 @@
 
 namespace BPN\BpnExpiringFeUsers\Tests\Functional\Domain\Repository;
 
-use BPN\BpnExpiringFeUsers\Domain\Models\Config;
+use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 use BPN\BpnExpiringFeUsers\Domain\Repository\ExpiringGroupRepository;
 use BPN\BpnExpiringFeUsers\Domain\Repository\FrontEndUserRepository;
 use BPN\BpnExpiringFeUsers\Tests\Functional\FunctionalTestCase;

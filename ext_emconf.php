@@ -14,7 +14,7 @@ $EM_CONF[$_EXTKEY] = [
     'version'          => '10.4',
     'constraints'      => [
         'suggests' => [
-            'itypo_expiring_fe_groups' => '',
+            'bpn_expiring_fe_groups' => '',
         ],
     ],
 ];

@@ -1,11 +1,5 @@
 <?php
 
-/***************************************************************
- *  Copyright notice
- *
- *  (c) 2013 Sander Leeuwesteijn | iTypo <info@itypo.nl>
- *  All rights reserved
- */
 
 class disableAction
 {

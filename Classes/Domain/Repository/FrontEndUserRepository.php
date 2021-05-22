@@ -27,7 +27,9 @@
 
 namespace BPN\BpnExpiringFeUsers\Domain\Repository;
 
-use BPN\BpnExpiringFeUsers\Domain\Models\Config;
+use BPN\BpnExpiringFeUsers\Domain\Model\Config;
+use BPN\BpnExpiringFeUsers\Service\DateService;
+use BPN\BpnExpiringFeUsers\Service\MailService;
 use BPN\BpnExpiringFeUsers\Traits\RepositoryTrait;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -65,6 +67,22 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         $this->expiringGroupRepository = $expiringGroupRepository;
     }
 
+    /** @var DateService */
+    protected $dateService;
+
+    public function injectDateService(DateService $dateService)
+    {
+        $this->dateService = $dateService;
+    }
+
+    /** @var MailService */
+    protected $mailService;
+
+    public function injectMailService(MailService $mailService)
+    {
+        $this->mailService = $mailService;
+    }
+
     /**
      * Sets the endtime for an account.
      *
@@ -74,18 +92,18 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
      *
      * @return void
      */
-    public function setAccountExpirationDate(int $uid, string $endtime, array $record)
+    public function setAccountExpirationDate(int $uid, string $endtime, Config $config)
     {
         $table = self::TABLE;
 
-        $message = 'fe_user has been set to expire on '.date('d-m-y H:i:s', $endtime);
+        $message = 'fe_user has been set to expire on ' . date('d-m-y H:i:s', $endtime);
         $action = 'expiring';
 
-        if ((int) $record['testmode'] || $record['email_test']) {
+        if ($config->getTestmode() || $config->getEmailTest()) {
             $action = 'testexpiring';
         } else {
             $updateFields = [
-                'tstamp' => time(),
+                'tstamp'  => time(),
                 'endtime' => $endtime,
             ];
 
@@ -96,14 +114,18 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
             $connection->update($table, $updateFields, $where);
         }
 
-        $this->logRepository->log($record, $uid, $action, $message);
+        $this->logRepository->addLog($config, $uid, $action, $message);
     }
 
     /**
      * Gets all users for this configuration.
      */
-    public function getUserByConfig(Config $config, int $userId = 0, bool $allowExpired = false): array
-    {
+    public function getUserByConfig(
+        Config $config,
+        int $userId = 0,
+        bool $allowExpired = false,
+        int $limit = 1000
+    ) : array {
         $removeQuerySettings = false;
         $table = self::TABLE;
         /** @var QueryBuilder $queryBuilder */
@@ -155,14 +177,9 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
             $memberOf = $config->getNoMemberOfAsArray();
             if ($memberOf) {
                 foreach ($memberOf as $group) {
-                    // expected group is an ID
-
-                    $groupConditions[] = 'FIND_IN_SET(:groupId, ' . $queryBuilder->quoteIdentifier('usergroup') . ') = 0';
-
-//                    $groupConditions[] = $queryBuilder->expr()->inSet(
-//                        'usergroup',
-//                        $queryBuilder->createNamedParameter($group, Connection::PARAM_INT)
-//                    );
+                    $groupConditions[] = 'FIND_IN_SET(:groupId, ' . $queryBuilder->quoteIdentifier(
+                            'usergroup'
+                        ) . ') = 0';
                 }
                 $queryBuilder->setParameter('groupId', $group, Connection::PARAM_INT);
 
@@ -176,8 +193,8 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         }
 
         $time = time();                                         // current timestamp
-        $daysago = strtotime('-'.$config->getDays().' days');            // timestamp of x days ago
-        $daysfuture = strtotime('+'.$config->getDays().' days');        // timestamp of x days in the future
+        $daysago = strtotime('-' . $config->getDays() . ' days');            // timestamp of x days ago
+        $daysfuture = strtotime('+' . $config->getDays() . ' days');        // timestamp of x days in the future
 
         // queries for each checkbox
         if ($config->getCondition1()) {
@@ -231,11 +248,11 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
                 foreach ($expiringGroups as $expiringGroupId) {
                     $expWhereOR[] = $queryBuilder->expr()->like(
                         'tx_expiringfegroups_groups',
-                        $queryBuilder->createNamedParameter($expiringGroupId.'|%', Connection::PARAM_STR)
+                        $queryBuilder->createNamedParameter($expiringGroupId . '|%', Connection::PARAM_STR)
                     );
                     $expWhereOR[] = $queryBuilder->expr()->like(
                         'tx_expiringfegroups_groups',
-                        $queryBuilder->createNamedParameter('%*'.$expiringGroupId.'|%', Connection::PARAM_STR)
+                        $queryBuilder->createNamedParameter('%*' . $expiringGroupId . '|%', Connection::PARAM_STR)
                     );
                 }
                 if ($expWhereOR) {
@@ -258,16 +275,25 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
             $whereAnd[] = $queryBuilder->expr()->lt('starttime', time());
         }
 
-        $config->setExtendBy(50);
+        if ($config->getExtendBy() <= 0) {
+            $config->setExtendBy(50);
+        }
 
         if ($userId) {
             $whereAnd[] = $queryBuilder->expr()->eq('uid', $userId);
         }
 
+        if ($limit > 2500) {
+            $limit = 2500;
+        } elseif ($limit < 1) {
+            $limit = 1;
+        }
+
         $queryBuilder
             ->select('*')
             ->from($table)
-            ->where(...$whereAnd);
+            ->where(...$whereAnd)
+            ->setMaxResults($limit);
 
         $data = $queryBuilder->execute()->fetchAllAssociative();
 
@@ -281,59 +307,149 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         return ExtensionManagementUtility::isLoaded('bpn_expiring_fe_groups');
     }
 
-    private function a(){
-        // see https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ApiOverview/Database/ExpressionBuilder
+    /**
+     * Finds the matching users for a job record.
+     *
+     * @param array $config       : row with job record info
+     * @param bool  $preview      true to preview. False to show for real!
+     * @param int   $userId
+     * @param bool  $allowExpired true to include expired users
+     *
+     * @return array $users: array with all users found
+     */
+    public function findMatchingUsers(
+        Config $config,
+        bool $preview = false,
+        int $userId = 0,
+        bool $allowExpired = false
+    ) : array {
+        // check whether compatible extension is loaded
+        $exp_fe_groups = ExtensionManagementUtility::isLoaded('bpn_expiring_fe_groups');
 
-        //$table = self::TABLE;
-        $table = '';
-        /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable($table);
-        // $queryBuilder->getRestrictions()
-        //     ->removeAll()
-        //     ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        if (!$preview && $this->dateService->isSummerAndExcluded((array)$config)) {
+            return [];
+        }
 
-        $queryBuilder
-            ->select('*')
-            ->from($table)
-            ->where(
-                $queryBuilder->expr()->eq('field', $queryBuilder->quoteIdentifier('other_field')),
-                $queryBuilder->expr()->eq('field2', $queryBuilder->createNamedParameter('string_value', Connection::PARAM_STR)),
-                $queryBuilder->expr()->eq('field3', 23),
-                $queryBuilder->expr()->in(
-                    'field4',
-                    $queryBuilder->createNamedParameter([0, 1, 2, 3],Connection::PARAM_INT_ARRAY)
-                ),
-                $queryBuilder->expr()->in(
-                    'field5',
-                    $queryBuilder->createNamedParameter(['string_value1','string_value2'], Connection::PARAM_STR_ARRAY)
-                ),
-                $queryBuilder->expr()->inSet(
-                    'usergroup',
-                    $queryBuilder->createNamedParameter($usergroupId, Connection::PARAM_STR)
-                ),
-            );
+        $daysFuture = strtotime('+' . $config->getDays() . ' days');
+        $rows = $this->getUserByConfig($config);
 
-        // retrieve all (or fetchAllAssociative, fetchFirstColumn)
-        $data = $queryBuilder->execute()->fetchAll();
-        // retrieve single record (fetchNumeric(),fetchAssociative())
-        $data = $queryBuilder->execute()->fetchOne();
-        // Make associative on field
-        // $data = \BPN\BpnLibrary\Utility\ArrayFunctions::setIndexField($data, 'index-field-name');
+        $users = [];
+        foreach ($rows as $currentUserId => $row) {
+            if ($exp_fe_groups && 1 == $config->getCondition20() && $config->getExpiringGroup()) {
+                // now filter the users which are not a member of the group at all or not expiring within the set days
+                if (!$row[ExpiringGroupRepository::FIELD]) {
+                    continue;
+                }
+                $expiringGroups = $this->expiringGroupRepository->getActiveExpiringGroups(
+                    $row[ExpiringGroupRepository::FIELD]
+                );
+                if ($expiringGroups) {
+                    continue;
+                }
+                foreach ($expiringGroups as $expiringGroup) {
+                    // it matches, now check if this group membership is about to expire
+                    $endTime = $expiringGroup->getEnd();
+                    if (!$endTime) {
+                        continue;
+                    }
 
-        // $query = $queryBuilder->getQuery();
-        // SHOW SQL:
-        //        echo $queryBuilder->getSQL();
-        // Show Parameters:
-        //        echo $queryBuilder->getParameters();
-        $result = [];
-        if ($data) {
-            foreach ($data as $row) {
-                $result[(int)$row['uid']] = $row;
+                    if ($endTime < time()) {
+                        continue;
+                    }
+
+                    if ($endTime > $daysFuture) {
+                        continue;
+                    }
+
+                    $durationExpiringGroupDays = ($expiringGroup->getEnd() - $expiringGroup->getStart()) / 86400;
+                    if ($durationExpiringGroupDays < (int)$config['days']) {
+                        continue;
+                    }
+
+                    if ($this->mailService->checkSentLog($config, $currentUserId)){
+                        continue;
+                    }
+
+                    // 1) skip users already in sentlog younger then extend_by days minus days
+                    // 2) also check if there isnt a record for the same group already with a newer exp date, if so, dont mail
+                    // 3) skip users already in the sent array, could happen when it has 2 memberships to this group which will expire soon. (done by uid as key)
+                    if (
+                        !$this->mailService->checkSentLog($config, $currentUserId) &&
+                        !$this->mailService->checkForNewerExpRecord(
+                            $config,
+                            $row,
+                            $expiringGroup->getUid(),
+                            $daysFuture
+                        )) {
+                        $users[$currentUserId] = $row;
+                    }
+                }
+            }
+
+            if ($exp_fe_groups && 1 == $config['condition20'] && $config['expiringGroup']) {    // now filter the users which are not a member of the group at all or not expiring within the set days
+//                foreach ($expiringGroups as $expiringGroup) {
+//                    // check whether this record actually concerns the selected group, the query above might accidentally select the wrong user because of the LIKE (can match in timestamp)
+//                    if (false !== array_search($expiringGroup->getUid(), $expGrList)) {
+//                        // it matches, now check if this group membership is about to expire
+//                        if ($expiringGroup->getEnd() > time() && $expiringGroup->getEnd() < $daysfuture) {
+//                            // Determine duration of expiring group (days)
+//
+//                            $durationExpiringGroupDays = ($expiringGroup->getEnd() - $expiringGroup->getStart(
+//                                    )) / 86400;
+//                            if ($durationExpiringGroupDays < (int)$config['days']) {
+//                                continue;
+//                            }
+//
+//                            // 1) skip users already in sentlog younger then extend_by days minus days
+//                            // 2) also check if there isnt a record for the same group already with a newer exp date, if so, dont mail
+//                            // 3) skip users already in the sent array, could happen when it has 2 memberships to this group which will expire soon. (done by uid as key)
+//                            if (
+//                                !mailAction::checkSentLog(
+//                                    $config,
+//                                    $currentUserId
+//                                ) && !mailAction::checkForNewerExpRecord(
+//                                    $config,
+//                                    $row,
+//                                    $expiringGroup->getUid(),
+//                                    $daysfuture
+//                                )) {
+//                                $users[$currentUserId] = $row;
+//                            }
+//                        }
+//                    }
+//                }
+            } elseif ('1' == $config['todo'][0]) { // specific filter for mailAction
+                // skip users already in sentlog younger then extend_by days minus days
+                if (!mailAction::checkSentLog($config, $currentUserId)) {
+                    $users[] = $row;
+                }
+            } elseif ('5' == $config['todo'][0]) {
+                // specific filter for expireAction, skip users already in sentlog
+                if (!tx_bpnexpiringfeusers_helpers::isInSentLog($config['uid'], $currentUserId, $config['testmode'])) {
+                    $users[] = $row;
+                }
+            } else {
+                // for all other actions, skip users already in sentlog when testmode is on. otherwise testmode would always affect the first batch of users.
+                if ('1' == $config['testmode']) {
+                    if (
+                    !tx_bpnexpiringfeusers_helpers::isInSentLog(
+                        $config['uid'],
+                        $currentUserId,
+                        $config['testmode']
+                    )) {
+                        $users[] = $row;
+                    }
+                } else {
+                    $users[] = $row;
+                }
+            }
+
+            // make sure we never select more users then the limiter allows.
+            if (count($users) >= $config['limiter']) {
+                break;
             }
         }
 
-
+        return $users;
     }
-
 }

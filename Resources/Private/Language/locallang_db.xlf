@@ -139,7 +139,7 @@
         <source>Extend by: (in days). Its best to not change this after users have been mailed. This is also used to calculate if its been long enough ago to mail users again</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.page" xml:space="preserve">
-        <source>Full URL to the Page where the Extend plugin resides (REQUIRED when adding Extend link. Its where people go after they clicked the extend link) (Example: http://www.example.com/extend/)</source>
+        <source>Full URL to the Page where the Extend plugin resides (REQUIRED when adding Extend link.) (Example: http://www.example.com/extend/)</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.allmatchingusers" xml:space="preserve">
         <source>These users match the currently configured conditions</source>
@@ -155,6 +155,9 @@
       </trans-unit>
       <trans-unit id="mailAction.extendby" xml:space="preserve">
         <source>Extend the account</source>
+      </trans-unit>
+      <trans-unit id="mailAction.or-copy-paste" xml:space="preserve">
+        <source>or copy and paste in the browser</source>
       </trans-unit>
     </body>
   </file>

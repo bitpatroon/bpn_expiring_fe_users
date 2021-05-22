@@ -1,14 +1,6 @@
 <?php
 
-/***************************************************************
-*  Copyright notice
-*
-*  (c) 2013 Sander Leeuwesteijn | iTypo <info@itypo.nl>
-*  All rights reserved
-*
-*  Custom field displaying matching users for this records current config.
-*
-*/
+
 
 class tx_nextmatchingusers_tca
 {
@@ -87,7 +79,7 @@ class tx_nextmatchingusers_tca
                         $even = !$even;
                     }
 
-                    $formField = '<table border="1" cellspacing="0" class="itypo_expiring_fe_users nextmatchingusers">' . $value . '</table>';
+                    $formField = '<table border="1" cellspacing="0" class="bpn_expiring_fe_users nextmatchingusers">' . $value . '</table>';
                 } else {
                     $formField = '<div><p>None.</p></div>';
                 }

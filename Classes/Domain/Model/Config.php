@@ -25,7 +25,7 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-namespace BPN\BpnExpiringFeUsers\Domain\Models;
+namespace BPN\BpnExpiringFeUsers\Domain\Model;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
@@ -287,6 +287,9 @@ class Config extends AbstractEntity
         return $this->noMemberOf ?? '';
     }
 
+    /**
+     * @return int[]
+     */
     public function getNoMemberOfAsArray() : array
     {
         $noMemberOf = $this->getNoMemberOf();
@@ -582,7 +585,7 @@ class Config extends AbstractEntity
 
     public function getExtendBy() : int
     {
-        return $this->extend_by;
+        return $this->extend_by ?? 0;
     }
 
     public function setExtendBy(int $extend_by) : Config
