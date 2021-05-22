@@ -29,7 +29,7 @@ namespace BPN\BpnExpiringFeUsers\Domain\Repository;
 
 use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 use BPN\BpnExpiringFeUsers\Service\DateService;
-use BPN\BpnExpiringFeUsers\Service\MailService;
+use BPN\BpnExpiringFeUsers\Service\MailActionService;
 use BPN\BpnExpiringFeUsers\Traits\RepositoryTrait;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -75,12 +75,12 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         $this->dateService = $dateService;
     }
 
-    /** @var MailService */
-    protected $mailService;
+    /** @var MailActionService */
+    protected $mailActionService;
 
-    public function injectMailService(MailService $mailService)
+    public function injectMailActionService(MailActionService $mailActionService)
     {
-        $this->mailService = $mailService;
+        $this->mailActionService = $mailActionService;
     }
 
     /**
@@ -366,7 +366,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
                         continue;
                     }
 
-                    if ($this->mailService->checkSentLog($config, $currentUserId)){
+                    if ($this->mailService->checkSentLog($config, $currentUserId)) {
                         continue;
                     }
 
@@ -451,5 +451,62 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         }
 
         return $users;
+    }
+
+    public function deleteUser(int $userId)
+    {
+        $table = self::TABLE;
+
+        /** @var Connection $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable($table);
+
+        $queryBuilder
+            ->update(
+                $table,
+                [
+                    'tstamp'  => time(),
+                    'deleted' => '1',
+                ],
+                ['uid' => $userId]
+            );
+    }
+
+    public function disableUser(int $userId)
+    {
+        $table = self::TABLE;
+
+        /** @var Connection $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable($table);
+
+        $queryBuilder
+            ->update(
+                $table,
+                [
+                    'tstamp'  => time(),
+                    'disable' => '1',
+                ],
+                ['uid' => $userId]
+            );
+    }
+
+    public function updateGroups(int $userId, string $newGroups)
+    {
+        $table = self::TABLE;
+
+        /** @var Connection $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable($table);
+
+        $queryBuilder
+            ->update(
+                $table,
+                [
+                    'tstamp'    => time(),
+                    'usergroup' => $newGroups,
+                ],
+                ['uid' => $userId]
+            );
     }
 }

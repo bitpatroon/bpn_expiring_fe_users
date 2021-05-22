@@ -27,10 +27,7 @@
 
 namespace BPN\BpnExpiringFeUsers\Domain\Repository;
 
-use BPN\BpnExpiringFeUsers\Domain\Model\Config;
-use BPN\BpnExpiringFeUsers\Service\DateService;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
 use TYPO3\CMS\Extbase\Persistence\Repository;
@@ -54,15 +51,6 @@ class ConfigRepository extends Repository
     const ACTION_REMOVE_GROUP = 4;
     const ACTION_EXPIRE = 5;
 
-    /**
-     * @var DateService
-     */
-    private $dateService;
-
-    public function injectDateService(DateService $dateService)
-    {
-        $this->dateService = $dateService;
-    }
 
     /** @var ExpiringGroupRepository */
     protected $expiringGroupRepository;
@@ -101,29 +89,25 @@ class ConfigRepository extends Repository
     }
 
     /**
-     * Find a record by uid even if it is hidden or deleted
+     * Find a record by uid even if it is hidden or deleted.
      *
-     * @param int $uid
+     * @param int       $uid
      * @param int|array $pid
+     *
      * @return object
      */
-    public function findByUidIncludingHidden($uid, $pid=false)
+    public function findByUidIncludingHidden($uid, int $pid = 0)
     {
         $query = $this->createQuery();
         $query->getQuerySettings()
             ->setIgnoreEnableFields(true)
             ->setIncludeDeleted(false)
             ->setRespectStoragePage(false);
-        if($pid){
-            if( is_array($pid) ){
-                $query->getQuerySettings()->setStoragePageIds( $pid );
-            }
-            elseif( is_integer($pid) ){
-                $query->getQuerySettings()->setStoragePageIds( [$pid] );
-            }
+        if ($pid) {
+            $query->getQuerySettings()->setStoragePageIds([$pid]);
         }
         $query->matching($query->equals('uid', $uid));
+
         return $query->execute()->getFirst();
     }
-
 }

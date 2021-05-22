@@ -4,7 +4,7 @@
  *  Copyright notice
  *
  *  (c) 2021 Sjoerd Zonneveld  <code@bitpatroon.nl>
- *  Date: 20-5-2021 16:53
+ *  Date: 22-5-2021 16:22
  *
  *  All rights reserved
  *
@@ -29,40 +29,23 @@ namespace BPN\BpnExpiringFeUsers\Service;
 
 use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 
-final class DateService
+final class DisableActionService extends AbstractActionService
 {
-    /**
-     * Checks if the is exclude summer setting is set and the current time is within the summer (july / august)
-     *
-     * @param Config|array $record the record
-     *
-     * @return bool false if the summer period is not excluded or it is not summer. True otherwise.
-     */
-    public function isSummerAndExcluded($record) : bool
+    protected $action = 'disable';
+
+    protected function executeSingle(Config $config, array $user, int $userId) : bool
     {
-        if (empty($record)) {
-            return false;
+        $this->frontEndUserRepository->disableUser($userId);
+
+        return true;
+    }
+
+    function getDefaultActionMessage(bool $result) : string
+    {
+        if ($result) {
+            return 'user will expire after %s days.';
         }
 
-        if ($record instanceof Config) {
-            if (!$record->getExcludesummer()) {
-                return false;
-            }
-        }
-
-        if (isset($record['excludesummer'])) {
-            if (!(int)$record['excludesummer']) {
-                return false;
-            }
-        }
-
-        $month = (int)date('n');
-        switch ($month) {
-            case 7:
-            case 8:
-                return true;
-        }
-
-        return false;
+        return 'Failed to disable the user';
     }
 }

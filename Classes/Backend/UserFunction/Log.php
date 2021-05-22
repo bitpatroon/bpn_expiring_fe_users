@@ -29,13 +29,14 @@ namespace BPN\BpnExpiringFeUsers\Backend\UserFunction;
 
 use BPN\BpnExpiringFeUsers\Domain\Repository\ConfigRepository;
 use BPN\BpnExpiringFeUsers\Domain\Repository\FrontEndUserRepository;
-use BPN\BpnExpiringFeUsers\Domain\Repository\LogRepository;
+use BPN\BpnExpiringFeUsers\Traits\LogTrait;
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class Log extends AbstractFormElement
 {
+    use LogTrait;
 
     public function render()
     {
@@ -66,12 +67,9 @@ class Log extends AbstractFormElement
         /** @var FrontEndUserRepository $frontEndUserRepository */
         $frontEndUserRepository = $objectManager->get(FrontEndUserRepository::class);
 
-        /** @var LogRepository $logRepository */
-        $logRepository = $objectManager->get(LogRepository::class);
-
         $uid = $databaseRow['uid'];
 
-        $logs = $logRepository->getByJobByUserWithUser($uid);
+        $logs = $this->getLogRepository()->getByJobByUserWithUser($uid);
         if (!$logs) {
             return $this->showError('No log items found [1621679374933]', $resultArray);
         }

@@ -4,7 +4,7 @@
  *  Copyright notice
  *
  *  (c) 2021 Sjoerd Zonneveld  <code@bitpatroon.nl>
- *  Date: 20-5-2021 15:08
+ *  Date: 22-5-2021 16:51
  *
  *  All rights reserved
  *
@@ -25,29 +25,32 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-namespace BPN\BpnExpiringFeUsers\Controller;
+namespace BPN\BpnExpiringFeUsers\Traits;
 
-use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use BPN\BpnExpiringFeUsers\Service\DateService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-class HandleActionController extends ActionController
+trait DateServiceTrait
 {
-    public function deleteAction($configRow, array $users)
+    /**
+     * @var DateService
+     */
+    private $dateService;
+
+    public function injectDateService(DateService $dateService)
     {
+        $this->dateService = $dateService;
     }
 
-    public function disableAction($configRow, array $users)
+    public function getDateService() : DateService
     {
-    }
+        if (!$this->dateService) {
+            /* @var DateService $dateService */
+            $this->dateService = GeneralUtility::makeInstance(ObjectManager::class)
+                ->get(DateService::class);
+        }
 
-    public function expireAction($configRow, array $users)
-    {
-    }
-
-    public function mailAction($configRow, array $users)
-    {
-    }
-
-    public function removeGroupAction($configRow, array $users)
-    {
+        return $this->dateService;
     }
 }

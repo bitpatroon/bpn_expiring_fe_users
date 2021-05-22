@@ -29,6 +29,8 @@ namespace BPN\BpnExpiringFeUsers\Domain\Repository;
 
 use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 use BPN\BpnExpiringFeUsers\Traits\RepositoryTrait;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -37,9 +39,15 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 
 class LogRepository extends Repository
 {
+    use RepositoryTrait;
+
     private const TABLE = 'tx_bpnexpiringfeusers_log';
 
-    use RepositoryTrait;
+    /** @var InputInterface */
+    private $input;
+
+    /** @var OutputInterface */
+    private $output;
 
     public function addInfo(Config $config, int $userId, string $message)
     {
@@ -69,6 +77,19 @@ class LogRepository extends Repository
         /** Connection $connection */
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
         $connection->insert($table, $insertFields);
+
+        if ($this->output) {
+            $insertFields = array_slice($insertFields, 1);
+            $this->output->writeln(
+                sprintf(
+                    '%s (Job:%s user:%s): %s',
+                    $insertFields['action'],
+                    $insertFields['job'],
+                    $insertFields['fe_user'],
+                    $insertFields['msg'],
+                )
+            );
+        }
     }
 
     /**
@@ -154,7 +175,6 @@ class LogRepository extends Repository
 
     public function findByJobUser(?int $jobId, int $userId, int $testmode, bool $newerThan)
     {// see https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ApiOverview/Database/ExpressionBuilder
-
         $table = self::TABLE;
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ConnectionPool::class)
@@ -172,5 +192,23 @@ class LogRepository extends Repository
             );
 
         return $queryBuilder->execute()->fetchAssociative();
+    }
+
+    public function setInput($input) : LogRepository
+    {
+        if ($input) {
+            $this->input = $input;
+        }
+
+        return $this;
+    }
+
+    public function setOutput($output) : LogRepository
+    {
+        if ($output) {
+            $this->output = $output;
+        }
+
+        return $this;
     }
 }

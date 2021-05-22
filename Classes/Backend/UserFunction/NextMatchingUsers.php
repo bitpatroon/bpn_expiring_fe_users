@@ -28,14 +28,16 @@
 namespace BPN\BpnExpiringFeUsers\Backend\UserFunction;
 
 use BPN\BpnExpiringFeUsers\Domain\Repository\ConfigRepository;
-use BPN\BpnExpiringFeUsers\Domain\Repository\FrontEndUserRepository;
-use BPN\BpnExpiringFeUsers\Domain\Repository\LogRepository;
-use BPN\BpnExpiringFeUsers\Service\DateService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use BPN\BpnExpiringFeUsers\Traits\ConfigTrait;
+use BPN\BpnExpiringFeUsers\Traits\DateServiceTrait;
+use BPN\BpnExpiringFeUsers\Traits\FrontEndUserTrait;
 
 class NextMatchingUsers extends AbstractUsersView
 {
+    use ConfigTrait;
+    use DateServiceTrait;
+    use FrontEndUserTrait;
+
     public function render()
     {
         $resultArray = $this->mergeChildReturnIntoExistingResult(
@@ -48,7 +50,7 @@ class NextMatchingUsers extends AbstractUsersView
         $table = $this->data['tableName'];
         if (ConfigRepository::TABLE != $table) {
             return $this->showError(
-                'Not allowed to use this control on another record other than ' . ConfigRepository::TABLE,
+                'Not allowed to use this control on another record other than '.ConfigRepository::TABLE,
                 $resultArray
             );
         }
@@ -57,33 +59,16 @@ class NextMatchingUsers extends AbstractUsersView
             return $this->showError('New Record detected. Please save first. [1621631328224]', $resultArray);
         }
 
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
-        /** @var ConfigRepository $configRepository */
-        $configRepository = $objectManager->get(ConfigRepository::class);
-
-        /** @var FrontEndUserRepository $frontEndUserRepository */
-        $frontEndUserRepository = $objectManager->get(FrontEndUserRepository::class);
-
-        /** @var DateService $dateService */
-        $dateService = GeneralUtility::makeInstance(ObjectManager::class)
-            ->get(DateService::class);
-
-        /** @var LogRepository $logRepository */
-        $logRepository = $objectManager->get(LogRepository::class);
-
-        $uid = $databaseRow['uid'];
-
-        if ($dateService->isSummerAndExcluded($databaseRow)) {
+        if ($this->getDateService()->isSummerAndExcluded($databaseRow)) {
             return $this->showError('Currently suspended', $resultArray);
         }
 
-        $configRepository->allowHiddenRecords();
-        $config = $configRepository->findByUidIncludingHidden((int)$databaseRow['uid']);
+        $this->getConfigRepository()->allowHiddenRecords();
+        $config = $this->getConfigRepository()->findByUidIncludingHidden((int) $databaseRow['uid']);
         if (!$config) {
             return $this->showError('Configuration was not found [1621681787]', $resultArray);
         }
-        $users = $frontEndUserRepository->getUserByConfig($config, 0, true, 1000);
+        $users = $this->getFrontEndUserRepository()->getUserByConfig($config, 0, true, 1000);
         if (!$users) {
             return $this->showError('No users found', $resultArray);
         }
@@ -93,7 +78,7 @@ class NextMatchingUsers extends AbstractUsersView
 
     protected function showError(string $message, array $resultArray)
     {
-        $resultArray['html'] = '<div class="alert alert-warning">' . $message . '</div>';
+        $resultArray['html'] = '<div class="alert alert-warning">'.$message.'</div>';
 
         return $resultArray;
     }

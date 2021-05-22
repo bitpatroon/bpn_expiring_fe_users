@@ -4,7 +4,7 @@
  *  Copyright notice
  *
  *  (c) 2021 Sjoerd Zonneveld  <code@bitpatroon.nl>
- *  Date: 20-5-2021 16:53
+ *  Date: 22-5-2021 16:18
  *
  *  All rights reserved
  *
@@ -29,40 +29,8 @@ namespace BPN\BpnExpiringFeUsers\Service;
 
 use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 
-final class DateService
+interface ActionInterface
 {
-    /**
-     * Checks if the is exclude summer setting is set and the current time is within the summer (july / august)
-     *
-     * @param Config|array $record the record
-     *
-     * @return bool false if the summer period is not excluded or it is not summer. True otherwise.
-     */
-    public function isSummerAndExcluded($record) : bool
-    {
-        if (empty($record)) {
-            return false;
-        }
+    public function execute(Config $config, array $users);
 
-        if ($record instanceof Config) {
-            if (!$record->getExcludesummer()) {
-                return false;
-            }
-        }
-
-        if (isset($record['excludesummer'])) {
-            if (!(int)$record['excludesummer']) {
-                return false;
-            }
-        }
-
-        $month = (int)date('n');
-        switch ($month) {
-            case 7:
-            case 8:
-                return true;
-        }
-
-        return false;
-    }
 }

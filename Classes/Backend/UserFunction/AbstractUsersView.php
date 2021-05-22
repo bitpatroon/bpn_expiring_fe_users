@@ -27,11 +27,14 @@
 
 namespace BPN\BpnExpiringFeUsers\Backend\UserFunction;
 
+use BPN\BpnExpiringFeUsers\Traits\LogTrait;
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
 
 abstract class AbstractUsersView extends AbstractFormElement
 {
-    protected function renderView(array $users, array $resultArray): array
+    use LogTrait;
+
+    protected function renderView(array $users, array $resultArray) : array
     {
         $numRecords = count($users);
 
@@ -55,12 +58,12 @@ abstract class AbstractUsersView extends AbstractFormElement
                     : '-';
 
                 $result[] = '<tr>';
-                $result[] = '<td class="col-md-1 text-left">'.$user['uid'].'&nbsp;</td>';
-                $result[] = '<td class="col-md-2 text-left">'.$user['name'].'&nbsp;</td>';
-                $result[] = '<td class="col-md-3 text-left">'.$user['email'].'&nbsp;</td>';
-                $result[] = '<td class="col-md-2 text-left">'.date('d-m-y H:s', $user['crdate']).'&nbsp;</td>';
-                $result[] = '<td class="col-md-2 text-left">'.date('d-m-y H:s', $user['lastlogin']).'&nbsp;</td>';
-                $result[] = '<td class="col-md-2 text-left">'.$endtime.'</td>';
+                $result[] = '<td class="col-md-1 text-left">' . $user['uid'] . '&nbsp;</td>';
+                $result[] = '<td class="col-md-2 text-left">' . $user['name'] . '&nbsp;</td>';
+                $result[] = '<td class="col-md-3 text-left">' . $user['email'] . '&nbsp;</td>';
+                $result[] = '<td class="col-md-2 text-left">' . date('d-m-y H:s', $user['crdate']) . '&nbsp;</td>';
+                $result[] = '<td class="col-md-2 text-left">' . date('d-m-y H:s', $user['lastlogin']) . '&nbsp;</td>';
+                $result[] = '<td class="col-md-2 text-left">' . $endtime . '</td>';
                 $result[] = '</tr>';
             }
 

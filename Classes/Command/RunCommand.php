@@ -27,44 +27,51 @@
 
 namespace BPN\BpnExpiringFeUsers\Command;
 
-use BPN\BpnExpiringFeUsers\Controller\HandleActionController;
 use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 use BPN\BpnExpiringFeUsers\Domain\Model\FrontEndUser;
 use BPN\BpnExpiringFeUsers\Domain\Repository\ConfigRepository;
-use BPN\BpnExpiringFeUsers\Domain\Repository\FrontEndUserRepository;
+use BPN\BpnExpiringFeUsers\Service\DeleteActionService;
+use BPN\BpnExpiringFeUsers\Service\DisableActionService;
+use BPN\BpnExpiringFeUsers\Service\ExpireActionService;
+use BPN\BpnExpiringFeUsers\Service\MailActionService;
+use BPN\BpnExpiringFeUsers\Service\RemoveGroupActionService;
+use BPN\BpnExpiringFeUsers\Traits\ConfigTrait;
+use BPN\BpnExpiringFeUsers\Traits\LogTrait;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use \TYPO3\CMS\Core\Domain\Repository\PageRepository;
-use Symfony\Component\Console\Command\Command;
 
 class RunCommand extends Command
 {
-//    /**
-//     * @var PageRepository
-//     */
-//    protected $pageRepository;
-//
-    /**
-     * @var ConfigRepository
-     */
-    protected $configRepository;
+    use LogTrait;
+    use ConfigTrait;
 
-//    /**
-//     * @var FrontEndUserRepository
-//     */
-//    protected $frontEndUserRepository;
+    /** @var MailActionService */
+    protected $mailActionService;
 
-    /**
-     * @var HandleActionController
-     */
-    protected $handleActionController;
+    /** @var DeleteActionService */
+    protected $deleteActionService;
 
-    /**
-     * @return bool
-     */
+    /** @var DisableActionService */
+    protected $disableActionService;
+
+    /** @var ExpireActionService */
+    protected $expireActionService;
+
+    /** @var RemoveGroupActionService */
+    protected $removeGroupActionService;
+
     public function execute(InputInterface $input, OutputInterface $output) : bool
     {
+        $this->logRepository
+            ->setInput($input)
+            ->setOutput($output);
+
         $configRows = $this->configRepository->findAll();
+        if (!$configRows) {
+            // do nothing, still result is good!
+            return true;
+        }
 
         /** @var Config $configRow */
         foreach ($configRows as $configRow) {
@@ -73,29 +80,29 @@ class RunCommand extends Command
             if (empty($users)) {
                 continue;
             }
-            if (!array($users)) {
+            if (![$users]) {
                 continue;
             }
 
             switch ($configRow->getTodo()) {
                 case ConfigRepository::ACTION_MAIL:
-                    $this->handleActionController->mailAction($configRow, $users);
+                    $this->mailActionService->execute($configRow, $users);
                     break;
 
                 case ConfigRepository::ACTION_DISABLE:
-                    $this->handleActionController->disableAction($configRow, $users);
+                    $this->disableActionService->execute($configRow, $users);
                     break;
 
                 case ConfigRepository::ACTION_DELETE:
-                    $this->handleActionController->deleteAction($configRow, $users);
+                    $this->deleteActionService->execute($configRow, $users);
                     break;
 
                 case ConfigRepository::ACTION_REMOVE_GROUP:
-                    $this->handleActionController->removeGroupAction($configRow, $users);
+                    $this->removeGroupActionService->execute($configRow, $users);
                     break;
 
                 case ConfigRepository::ACTION_EXPIRE:
-                    $this->handleActionController->expireAction($configRow, $users);
+                    $this->expireActionService->execute($configRow, $users);
                     break;
             }
         }
@@ -103,25 +110,28 @@ class RunCommand extends Command
         return true;
     }
 
-    public function injectPageRepository(PageRepository $pageRepository)
+    public function injectMailActionService(MailActionService $mailActionService)
     {
-        $this->pageRepository = $pageRepository;
+        $this->mailActionService = $mailActionService;
     }
 
-    public function injectConfigRepository(ConfigRepository $configRepository)
+    public function injectDeleteActionService(DeleteActionService $deleteActionService)
     {
-        $this->configRepository = $configRepository;
+        $this->deleteActionService = $deleteActionService;
     }
 
-    public function injectFrontEndUserRepository(FrontEndUserRepository $frontEndUserRepository)
+    public function injectDisableActionService(DisableActionService $disableActionService)
     {
-        $this->frontEndUserRepository = $frontEndUserRepository;
+        $this->disableActionService = $disableActionService;
     }
 
-    public function injectHandleActionController(HandleActionController $handleActionController)
+    public function injectExpireActionService(ExpireActionService $expireActionService)
     {
-        $this->handleActionController = $handleActionController;
+        $this->expireActionService = $expireActionService;
     }
 
-
+    public function injectRemoveGroupActionService(RemoveGroupActionService $removeGroupActionService)
+    {
+        $this->removeGroupActionService = $removeGroupActionService;
+    }
 }

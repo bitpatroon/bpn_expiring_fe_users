@@ -28,92 +28,63 @@
 namespace BPN\BpnExpiringFeUsers\Service;
 
 use BPN\BpnExpiringFeUsers\Domain\Model\Config;
-use BPN\BpnExpiringFeUsers\Domain\Repository\FrontEndUserGroupRepository;
-use BPN\BpnExpiringFeUsers\Domain\Repository\FrontEndUserRepository;
-use BPN\BpnExpiringFeUsers\Domain\Repository\LogRepository;
+use BPN\BpnExpiringFeUsers\Traits\FrontEndUserGroupTrait;
+use BPN\BpnExpiringFeUsers\Traits\FrontEndUserTrait;
+use BPN\BpnExpiringFeUsers\Traits\LogTrait;
 use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-class MailService
+final class MailActionService extends AbstractActionService
 {
-    /** @var LogRepository */
-    protected $logRepository;
+    use LogTrait;
+    use FrontEndUserTrait;
+    use FrontEndUserGroupTrait;
 
-    public function injectLogRepository(LogRepository $logRepository)
+    protected $action = 'mail';
+
+    protected function beforeExecutingSingle(Config $config, array $user, int $userId) : bool
     {
-        $this->logRepository = $logRepository;
-    }
+        if (!$user['email']) {
+            $this->addLog($config, $userId, 'warning', 'fe_user not notified. No e-mail address found.');
 
-    /** @var FrontEndUserRepository */
-    protected $frontEndUserRepository;
-
-    public function injectFrontEndUserRepository(FrontEndUserRepository $frontEndUserRepository)
-    {
-        $this->frontEndUserRepository = $frontEndUserRepository;
-    }
-
-    /** @var FrontEndUserGroupRepository */
-    protected $frontEndUserGroupRepository;
-
-    public function injectFrontEndUserGroupRepository(FrontEndUserGroupRepository $frontEndUserGroupRepository)
-    {
-        $this->frontEndUserGroupRepository = $frontEndUserGroupRepository;
-    }
-
-    /** @var LanguageService */
-    protected $languageService;
-
-    public function injectLanguageService(LanguageService $languageService)
-    {
-        $this->languageService = $languageService;
-    }
-
-    /**
-     * Sends an e-mail to fe_users.
-     */
-    public function main(Config $config, array $users)
-    {
-        if (!$this->validateJob($config)) {
-            return;
+            return false;
         }
 
-        if (!$users || !is_array($users)) {
-            return;
+        return true;
+    }
+
+    protected function executeSingle(Config $config, array $user, int $userId) : bool
+    {
+        $this->sendMail($config, $user);
+
+        // set account to expire, even when user has no e-mail address
+        if ($config->getExpiresIn()) {
+            $this->frontEndUserRepository->setAccountExpirationDate(
+                $userId,
+                strtotime('+' . $config->getExpiresIn() . ' days'),
+                $config
+            );
         }
 
-        foreach ($users as $user) {
-            $userId = (int)$user['uid'];
-            if (!$user['email']) {
-                $this->logRepository->addLog(
-                    $config,
-                    $userId,
-                    'warning',
-                    'fe_user not notified. No e-mail address found.'
-                );
-                continue;
-            }
+        return true;
+    }
 
-            $this->sendMail($config, $user);
-
-            // set account to expire, even when user has no e-mail address
-            if ($config->getExpiresIn()) {
-                $this->frontEndUserRepository->setAccountExpirationDate(
-                    $userId,
-                    strtotime('+' . $config->getExpiresIn() . ' days'),
-                    $config
-                );
-            }
+    public function getDefaultActionMessage(bool $result) : string
+    {
+        if ($result) {
+            return 'User was notified by e-mail.';
         }
+
+        return 'Failed to notify user by e-mail';
     }
 
     /**
      * Validates the job, see if all fields are filled in etc.
      */
-    private function validateJob(Config $config) : bool
+    protected function validateJob(Config $config) : bool
     {
         if ('1' == $config->getReactivateLink() && !$config->getPage()) {
             $this->logRepository->addError($config, 'No extend URL entered in job.');
@@ -147,8 +118,15 @@ class MailService
      */
     protected function sendMail(Config $config, array $userRecord)
     {
+        if (!isset($userRecord['uid']) || !$userRecord['uid']) {
+            $this->logRepository->addError($config, 'Invalid user passed! Missing userid.');
+
+            return;
+        }
+        $userId = (int)$userRecord['uid'];
+
         if ($config->getTestmode()) {
-            $this->logRepository->addInfo($config, (int)$userRecord['uid'], 'Job From e-mail address is invalid.');
+            $this->logRepository->addInfo($config, (int)$userId, 'Job From e-mail address is invalid.');
 
             return;
         }
@@ -165,7 +143,7 @@ class MailService
         if ($config->getReactivateLink() || $reactivateLinkForExpiringGroups) {
             $params = sprintf(
                 '/?&u=%s&t=%s&e=%s&r=%s',
-                $userRecord['uid'],
+                $userId,
                 time(),
                 $config->getExtendBy(),
                 $config->getUid()
@@ -215,7 +193,7 @@ class MailService
             if (!GeneralUtility::validEmail($emailTo)) {
                 $this->logRepository->addError(
                     $config,
-                    sprintf('User (uid:%s) has an invalid e-mail address.', $userRecord['uid'])
+                    sprintf('User (uid:%s) has an invalid e-mail address.', $userId)
                 );
 
                 return;
@@ -236,7 +214,9 @@ class MailService
         $mailMessage->send();
 
         $action = $config->getEmailTest() ? 'testmail' : 'mail';
-        $this->logRepository->addLog($config, $userRecord['uid'], $action, 'user was notified.');
+        $this->logRepository->addLog($config, $userId, $action, 'user was notified.');
+
+        $this->dispatchEvent($config, $action, $userId, true);
     }
 
     /**
@@ -255,14 +235,5 @@ class MailService
         $row = $this->logRepository->findByJobUser($config->getUid(), $userId, $testmode, $hasToBe);
 
         return $row ? true : false;
-    }
-
-    protected function translate(string $key) : string
-    {
-        $linkText = $this->languageService->sL(
-            'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang_db.xlf/locallang_db.xlf:' . $key
-        );
-
-        return $linkText;
     }
 }
