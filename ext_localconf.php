@@ -6,6 +6,17 @@ if (!defined('TYPO3_MODE')) {
 
 call_user_func(
     function () {
+        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
+            'BpnExpiringFeUsers',
+            'Extend',
+            [
+                \BPN\BpnExpiringFeUsers\Controller\ExtendController::class => 'extend'
+            ],
+            [
+                \BPN\BpnExpiringFeUsers\Controller\ExtendController::class => 'extend'
+            ]
+        );
+
         // Add TSconfig to disable all RTE buttons and only show the basic ones
         TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(
             '
@@ -22,15 +33,6 @@ call_user_func(
             'title'       => 'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang_db.xlf/locallang_db.xlf:scheduler.title',
             'description' => 'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang_db.xlf/locallang_db.xlf:scheduler.description',
         ];
-
-        // Register pi1 plugin (extend account)
-        TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPItoST43(
-            'bpn_expiring_fe_users',
-            'pi1_extend/class.tx_bpnexpiringfeusers_pi1.php',
-            '_pi1',
-            'list_type',
-            0
-        );
 
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeRegistry'][1621627543] = [
             'nodeName' => 'expiringUsersallMatchingUsers',
@@ -50,8 +52,6 @@ call_user_func(
             'class'    => \BPN\BpnExpiringFeUsers\Backend\UserFunction\Log::class
         ];
 
-        // TODO: replace with event !
-        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS'][FrontendUserService::class]['on_notify_expired_user'][100]
-            = BPN\BpnExpiringFeUsers\Hooks\NotifyExpiringUsersHook::class . '->onNotifyExpiredUser';
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['eID_include']['tx_bpnexpiringfeusers'] = \BPN\BpnExpiringFeUsers\Start::class . '::process';
     }
 );

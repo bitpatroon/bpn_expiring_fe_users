@@ -334,14 +334,14 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         $rows = $this->getUserByConfig($config);
 
         $users = [];
-        foreach ($rows as $currentUserId => $row) {
+        foreach ($rows as $currentUserId => $user) {
             if ($exp_fe_groups && 1 == $config->getCondition20() && $config->getExpiringGroup()) {
                 // now filter the users which are not a member of the group at all or not expiring within the set days
-                if (!$row[ExpiringGroupRepository::FIELD]) {
+                if (!$user[ExpiringGroupRepository::FIELD]) {
                     continue;
                 }
                 $expiringGroups = $this->expiringGroupRepository->getActiveExpiringGroups(
-                    $row[ExpiringGroupRepository::FIELD]
+                    $user[ExpiringGroupRepository::FIELD]
                 );
                 if ($expiringGroups) {
                     continue;
@@ -366,86 +366,52 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
                         continue;
                     }
 
-                    if ($this->mailService->checkSentLog($config, $currentUserId)) {
+                    if ($this->logRepository->checkSentLog($config, $currentUserId)) {
                         continue;
                     }
-
-                    // 1) skip users already in sentlog younger then extend_by days minus days
-                    // 2) also check if there isnt a record for the same group already with a newer exp date, if so, dont mail
-                    // 3) skip users already in the sent array, could happen when it has 2 memberships to this group which will expire soon. (done by uid as key)
                     if (
-                        !$this->mailService->checkSentLog($config, $currentUserId) &&
-                        !$this->mailService->checkForNewerExpRecord(
-                            $config,
-                            $row,
-                            $expiringGroup->getUid(),
-                            $daysFuture
-                        )) {
-                        $users[$currentUserId] = $row;
+                    $this->expiringGroupRepository->checkForNewerExpRecord(
+                        $user,
+                        $expiringGroup->getUid(),
+                        $daysFuture
+                    )) {
+                        continue;
                     }
-                }
-            }
-
-            if ($exp_fe_groups && 1 == $config['condition20'] && $config['expiringGroup']) {    // now filter the users which are not a member of the group at all or not expiring within the set days
-//                foreach ($expiringGroups as $expiringGroup) {
-//                    // check whether this record actually concerns the selected group, the query above might accidentally select the wrong user because of the LIKE (can match in timestamp)
-//                    if (false !== array_search($expiringGroup->getUid(), $expGrList)) {
-//                        // it matches, now check if this group membership is about to expire
-//                        if ($expiringGroup->getEnd() > time() && $expiringGroup->getEnd() < $daysfuture) {
-//                            // Determine duration of expiring group (days)
-//
-//                            $durationExpiringGroupDays = ($expiringGroup->getEnd() - $expiringGroup->getStart(
-//                                    )) / 86400;
-//                            if ($durationExpiringGroupDays < (int)$config['days']) {
-//                                continue;
-//                            }
-//
-//                            // 1) skip users already in sentlog younger then extend_by days minus days
-//                            // 2) also check if there isnt a record for the same group already with a newer exp date, if so, dont mail
-//                            // 3) skip users already in the sent array, could happen when it has 2 memberships to this group which will expire soon. (done by uid as key)
-//                            if (
-//                                !mailAction::checkSentLog(
-//                                    $config,
-//                                    $currentUserId
-//                                ) && !mailAction::checkForNewerExpRecord(
-//                                    $config,
-//                                    $row,
-//                                    $expiringGroup->getUid(),
-//                                    $daysfuture
-//                                )) {
-//                                $users[$currentUserId] = $row;
-//                            }
-//                        }
-//                    }
-//                }
-            } elseif ('1' == $config['todo'][0]) { // specific filter for mailAction
-                // skip users already in sentlog younger then extend_by days minus days
-                if (!mailAction::checkSentLog($config, $currentUserId)) {
-                    $users[] = $row;
-                }
-            } elseif ('5' == $config['todo'][0]) {
-                // specific filter for expireAction, skip users already in sentlog
-                if (!tx_bpnexpiringfeusers_helpers::isInSentLog($config['uid'], $currentUserId, $config['testmode'])) {
-                    $users[] = $row;
+                    $users[$currentUserId] = $user;
                 }
             } else {
-                // for all other actions, skip users already in sentlog when testmode is on. otherwise testmode would always affect the first batch of users.
-                if ('1' == $config['testmode']) {
-                    if (
-                    !tx_bpnexpiringfeusers_helpers::isInSentLog(
-                        $config['uid'],
-                        $currentUserId,
-                        $config['testmode']
-                    )) {
-                        $users[] = $row;
-                    }
-                } else {
-                    $users[] = $row;
+                switch ($config->getTodo()) {
+                    case 1:
+                        // specific filter for mailAction
+                        // skip users already in sentlog younger then extend_by days minus days
+                        if (!$this->logRepository->checkSentLog($config, $currentUserId)) {
+                            $users[] = $user;
+                        }
+                        break;
+                    case 5:
+                        // specific filter for expireAction, skip users already in sentlog
+                        if (!$this->logRepository->isInSentLog($config['uid'], $currentUserId, $config['testmode'])) {
+                            $users[] = $user;
+                        }
+                        break;
+                    default:
+                        if ($config->getTestmode()) {
+                            if (
+                            !$this->logRepository->isInSentLog(
+                                $config['uid'],
+                                $currentUserId,
+                                $config['testmode']
+                            )) {
+                                $users[] = $user;
+                            }
+                        } else {
+                            $users[] = $user;
+                        }
+                        break;
                 }
             }
 
-            // make sure we never select more users then the limiter allows.
-            if (count($users) >= $config['limiter']) {
+            if (count($users) >= $config->getLimiter()) {
                 break;
             }
         }
@@ -508,5 +474,84 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
                 ],
                 ['uid' => $userId]
             );
+    }
+
+    public function updateLastLogin(int $userId)
+    {
+        $table = self::TABLE;
+
+        /** @var Connection $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable($table);
+
+        $queryBuilder
+            ->update(
+                $table,
+                ['lastlogin' => time()],
+                ['uid' => $userId]
+            );
+    }
+
+    public function addExpiringGroup(int $userId, int $groupId) : int
+    {
+        $newEndTimeGroup = strtotime(sprintf("+%d days", $groupId));
+
+        $groupEntry = sprintf("%d|%s|%s", $groupId, time(), $newEndTimeGroup);
+
+        $table = self::TABLE;
+        /** @var Connection $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable($table);
+
+        $userRecord = $queryBuilder->select([ExpiringGroupRepository::FIELD], $table, ['uid' => $userId]);
+        if (!$userRecord) {
+            return 0;
+        }
+        $currentExpiringGroupList = $userRecord[ExpiringGroupRepository::FIELD];
+
+        $currentExpiringGroups = explode('*', $currentExpiringGroupList);
+        $currentExpiringGroups[] = $groupEntry;
+        $newGroups = implode('*', $currentExpiringGroups);
+
+        $queryBuilder
+            ->update(
+                $table,
+                [
+                    'tstamp'                       => time(),
+                    ExpiringGroupRepository::FIELD => $newGroups,
+                ],
+                ['uid' => $userId]
+            );
+
+        return $newEndTimeGroup;
+    }
+
+    public function extend(int $userId, int $extendWithDays = 31) : bool
+    {
+        $table = self::TABLE;
+        /** @var Connection $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable($table);
+
+        $userRecord = $queryBuilder->select([ExpiringGroupRepository::FIELD], $table, ['uid' => $userId]);
+        if (!$userRecord) {
+            return false;
+        }
+        $endTime = max((int)$userRecord['endtime'], time());
+
+        // calculate and set new endtime
+        $endtime = strtotime('+' . $extendWithDays . ' days', $endTime);
+
+        $queryBuilder
+            ->update(
+                $table,
+                [
+                    'tstamp'  => time(),
+                    'endtime' => $endtime
+                ],
+                ['uid' => $userId]
+            );
+
+        return true;
     }
 }

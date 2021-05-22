@@ -19,7 +19,7 @@ return [
         'enablecolumns'  => [
             'disabled' => 'hidden',
         ],
-        'iconfile'       => 'EXT:bpn_expiring_fe_users/ext_icon.png',
+        'iconfile'       => 'EXT:bpn_expiring_fe_users/Resources/Public/Images/user-and-clock_icon.png',
     ],
     'interface' => [
         'showRecordFieldList' => 'hidden,testmode,title,sysfolder,memberOf,andor,noMemberOf,andor_not,conditions,days,todo,email_fromName,email_from,email_bcc,email_subject,email_text,expires_in,reactivate_link,extend_by,page',

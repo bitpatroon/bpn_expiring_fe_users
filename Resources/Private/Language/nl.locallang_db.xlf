@@ -210,6 +210,10 @@
         <source>or copy and paste in the browser</source>
         <target>of kopieer en plak in de browser</target>
       </trans-unit>
+      <trans-unit id="scheduler.title" xml:space="preserve">
+        <source>Process expiring users</source>
+        <target>Verwerk verlopende gebruikers</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

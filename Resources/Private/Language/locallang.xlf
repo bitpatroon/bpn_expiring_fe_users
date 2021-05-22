@@ -6,9 +6,6 @@
       <trans-unit id="pi1.extended" xml:space="preserve">
         <source>Your account has been extended.</source>
       </trans-unit>
-      <trans-unit id="pi1.extendedgroup" xml:space="preserve">
-        <source>Your group membership has been extended.</source>
-      </trans-unit>
       <trans-unit id="pi1.expired" xml:space="preserve">
         <source>The link has expired and is no longer valid. It can only be used for a few days after receiving it.</source>
       </trans-unit>
@@ -17,6 +14,18 @@
       </trans-unit>
       <trans-unit id="pi1.alreadyextended" xml:space="preserve">
         <source>This account was already extended not too long ago, the link can not be used again.</source>
+      </trans-unit>
+      <trans-unit id="result.extendedgroup" xml:space="preserve">
+        <source>Your group membership ###GROUPID### has been extended until ###ENDTIME###.</source>
+      </trans-unit>
+      <trans-unit id="log.extendedgroup" xml:space="preserve">
+        <source>User has expiring group ###GROUPID### until ###ENDTIME###.</source>
+      </trans-unit>
+      <trans-unit id="result.extended_by_link" xml:space="preserve">
+        <source>Your account has been extended by email until ###ENDTIME###.</source>
+      </trans-unit>
+      <trans-unit id="log.extended_by_link" xml:space="preserve">
+        <source>User has been extended by email until ###ENDTIME###.</source>
       </trans-unit>
     </body>
   </file>

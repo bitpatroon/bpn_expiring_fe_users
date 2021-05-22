@@ -31,7 +31,9 @@ use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 
 final class ExpireActionService extends AbstractActionService
 {
-    protected $action = 'expire';
+    const ACTION = 'expire';
+
+    protected $action = self::ACTION;
     protected $newEndTime;
 
     protected function beforeExecutingSingle(Config $config, array $user, int $userId) : bool

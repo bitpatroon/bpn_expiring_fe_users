@@ -159,6 +159,9 @@
       <trans-unit id="mailAction.or-copy-paste" xml:space="preserve">
         <source>or copy and paste in the browser</source>
       </trans-unit>
+      <trans-unit id="scheduler.title" xml:space="preserve">
+        <source>Process expiring users</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

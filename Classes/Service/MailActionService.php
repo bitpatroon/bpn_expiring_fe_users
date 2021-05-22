@@ -142,7 +142,7 @@ final class MailActionService extends AbstractActionService
         $reactivateLinkForExpiringGroups = (20 == $config->getReactivateLink());
         if ($config->getReactivateLink() || $reactivateLinkForExpiringGroups) {
             $params = sprintf(
-                '/?&u=%s&t=%s&e=%s&r=%s',
+                '/?&user=%s&time=%s&extend=%s&job=%s',
                 $userId,
                 time(),
                 $config->getExtendBy(),
@@ -150,7 +150,7 @@ final class MailActionService extends AbstractActionService
             );
             if ($reactivateLinkForExpiringGroups) {
                 // add which group to extend to url
-                $params .= '&g=' . $config->getMemberOf();
+                $params .= '&groups=' . $config->getMemberOf();
             }
             $params .= sprintf('&cHash=%s', GeneralUtility::hmac($params));
             $url = rtrim($config->getPage(), '/') . $params;
@@ -219,21 +219,4 @@ final class MailActionService extends AbstractActionService
         $this->dispatchEvent($config, $action, $userId, true);
     }
 
-    /**
-     * This function checks if a user was already mailed by a job, and if so, if it was long enough ago to do it again.
-     */
-    public function checkSentLog(Config $config, int $userId) : bool
-    {
-        $testmode = $config->getTestmode();
-        $daysAgo = $config->getExtendBy() - $config->getDays();
-        $hasToBe = strtotime('-' . $daysAgo . ' days');
-
-        if ($config->getExtendBy() <= 0) {
-            return true;
-        }
-
-        $row = $this->logRepository->findByJobUser($config->getUid(), $userId, $testmode, $hasToBe);
-
-        return $row ? true : false;
-    }
 }

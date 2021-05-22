@@ -27,7 +27,9 @@
 
 namespace BPN\BpnExpiringFeUsers\Domain\Repository;
 
+use BPN\BpnExpiringFeUsers\Controller\ExtendController;
 use BPN\BpnExpiringFeUsers\Domain\Model\Config;
+use BPN\BpnExpiringFeUsers\Service\ExpireActionService;
 use BPN\BpnExpiringFeUsers\Traits\RepositoryTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -62,11 +64,11 @@ class LogRepository extends Repository
     public function addLog(Config $config, int $userId, string $action, string $message)
     {
         $insertFields = [
-            'crdate'  => time(),
-            'job'     => $config->getUid(),
+            'crdate' => time(),
+            'job' => $config->getUid(),
             'fe_user' => $userId,
-            'action'  => $action,
-            'msg'     => $message,
+            'action' => $action,
+            'msg' => $message,
         ];
 
         if ($config->getTestmode()) {
@@ -95,7 +97,7 @@ class LogRepository extends Repository
     /**
      * Checks if a fe_user is found in a specific jobs sentlog.
      */
-    public function isInSentLog(int $job, int $userId, int $testmode) : bool
+    public function isInSentLog(int $job, int $userId, int $testmode): bool
     {
         $table = self::TABLE;
 
@@ -105,8 +107,8 @@ class LogRepository extends Repository
             ['uid'],
             $table,
             [
-                'job'      => $job,
-                'fe_user'  => $userId,
+                'job' => $job,
+                'fe_user' => $userId,
                 'testmode' => $testmode,
             ]
         )->fetchAssociative();
@@ -117,7 +119,7 @@ class LogRepository extends Repository
     /**
      * @deprecated Use isInSentLog
      */
-    public function hasLogEntries(int $job, int $user, int $testmode) : bool
+    public function hasLogEntries(int $job, int $user, int $testmode): bool
     {
         return $this->isInSentLog($job, $user, $testmode);
     }
@@ -137,7 +139,7 @@ class LogRepository extends Repository
         $rows = [];
         if ($data) {
             foreach ($data as $row) {
-                $rows[(int)$row['uid']] = $row;
+                $rows[(int) $row['uid']] = $row;
             }
         }
 
@@ -159,25 +161,25 @@ class LogRepository extends Repository
                 'fe_users',
                 'fe_users',
                 $queryBuilder->expr()->eq(
-                    $table . '.fe_user',
+                    $table.'.fe_user',
                     $queryBuilder->quoteIdentifier('fe_users.uid')
                 )
             )
             ->where(
-                $queryBuilder->expr()->eq($table . '.job', $uid),
-                $queryBuilder->expr()->eq($table . '.deleted', 0),
+                $queryBuilder->expr()->eq($table.'.job', $uid),
+                $queryBuilder->expr()->eq($table.'.deleted', 0),
             )
-            ->orderBy($table . '.uid')
+            ->orderBy($table.'.uid')
             ->setMaxResults(1000);
 
         return $queryBuilder->execute()->fetchAllAssociative();
     }
 
     public function findByJobUser(?int $jobId, int $userId, int $testmode, bool $newerThan)
-    {// see https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ApiOverview/Database/ExpressionBuilder
+    {
         $table = self::TABLE;
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(ConnectionPool::class)
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getQueryBuilderForTable($table);
 
         $queryBuilder
@@ -194,7 +196,7 @@ class LogRepository extends Repository
         return $queryBuilder->execute()->fetchAssociative();
     }
 
-    public function setInput($input) : LogRepository
+    public function setInput($input): LogRepository
     {
         if ($input) {
             $this->input = $input;
@@ -203,12 +205,63 @@ class LogRepository extends Repository
         return $this;
     }
 
-    public function setOutput($output) : LogRepository
+    public function setOutput($output): LogRepository
     {
         if ($output) {
             $this->output = $output;
         }
 
         return $this;
+    }
+
+    /**
+     * Check if an account is already extended by any job
+     * Determines if an account has already been extended by a particular job.
+     * Sees if there already is an extend entry between time of link generation and max validity days.
+     *
+     * @return bool true if account has already been extended by this job, false if not
+     */
+    public function isAccountAlreadyExtended(Config $config, int $userId, int $linkTimeStamp)
+    {
+        $monthAhead = strtotime('+31 days', $linkTimeStamp);
+
+        $table = self::TABLE;
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable($table);
+
+        $queryBuilder
+            ->select('*')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->eq('job', $config->getUid()),
+                $queryBuilder->expr()->eq('fe_user', $userId),
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('action', ExtendController::ACTION),
+                $queryBuilder->expr()->lt('crdate', $monthAhead),
+                $queryBuilder->expr()->gt('crdate', $linkTimeStamp)
+            );
+
+        $data = $queryBuilder->execute()->fetchAssociative();
+
+        return !empty($data) ? true : false;
+    }
+
+    /**
+     * This function checks if a user was already mailed by a job, and if so, if it was long enough ago to do it again.
+     */
+    public function checkSentLog(Config $config, int $userId) : bool
+    {
+        $testmode = $config->getTestmode();
+        $daysAgo = $config->getExtendBy() - $config->getDays();
+        $hasToBe = strtotime('-' . $daysAgo . ' days');
+
+        if ($config->getExtendBy() <= 0) {
+            return true;
+        }
+
+        $row = $this->findByJobUser($config->getUid(), $userId, $testmode, $hasToBe);
+
+        return $row ? true : false;
     }
 }

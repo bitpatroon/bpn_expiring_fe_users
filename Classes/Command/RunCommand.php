@@ -36,6 +36,7 @@ use BPN\BpnExpiringFeUsers\Service\ExpireActionService;
 use BPN\BpnExpiringFeUsers\Service\MailActionService;
 use BPN\BpnExpiringFeUsers\Service\RemoveGroupActionService;
 use BPN\BpnExpiringFeUsers\Traits\ConfigTrait;
+use BPN\BpnExpiringFeUsers\Traits\FrontEndUserTrait;
 use BPN\BpnExpiringFeUsers\Traits\LogTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -45,6 +46,7 @@ class RunCommand extends Command
 {
     use LogTrait;
     use ConfigTrait;
+    use FrontEndUserTrait;
 
     /** @var MailActionService */
     protected $mailActionService;
@@ -76,7 +78,7 @@ class RunCommand extends Command
         /** @var Config $configRow */
         foreach ($configRows as $configRow) {
             /** @var FrontEndUser[]|int[] $users */
-            $users = $this->configRepository->findMatchingUsers($configRow);
+            $users = $this->frontEndUserRepository->findMatchingUsers($configRow);
             if (empty($users)) {
                 continue;
             }
