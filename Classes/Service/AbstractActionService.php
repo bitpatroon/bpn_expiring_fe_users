@@ -57,7 +57,6 @@ abstract class AbstractActionService implements ActionInterface
         $this->languageService = $languageService;
     }
 
-
     protected function dispatchEvent(Config $config, string $action, int $userId, bool $result = true)
     {
         $event = new ActionEvent();
@@ -69,7 +68,7 @@ abstract class AbstractActionService implements ActionInterface
         $this->eventDispatcher->dispatch($event);
     }
 
-    public function execute(Config $config, array $users)
+    public function execute(Config $config, array $users): bool
     {
         if ($config->getHidden() || $config->getDeleted()) {
             return false;
@@ -84,7 +83,7 @@ abstract class AbstractActionService implements ActionInterface
         }
 
         foreach ($users as $user) {
-            $userId = (int)$user['uid'];
+            $userId = (int) $user['uid'];
 
             $this->beforeExecutingSingle($config, $user, $userId);
             if ($config->getTestmode()) {
@@ -97,26 +96,28 @@ abstract class AbstractActionService implements ActionInterface
             $this->addLog($config, $userId, $this->action, $this->getDefaultActionMessage($result));
             $this->dispatchEvent($config, $this->action, $userId, $result);
         }
+
+        return true;
     }
 
-    abstract protected function executeSingle(Config $config, array $user, int $userId) : bool;
+    abstract protected function executeSingle(Config $config, array $user, int $userId): bool;
 
-    abstract function getDefaultActionMessage(bool $result) : string;
+    abstract public function getDefaultActionMessage(bool $result): string;
 
-    protected function beforeExecutingSingle(Config $config, array $user, int $userId) : bool
+    protected function beforeExecutingSingle(Config $config, array $user, int $userId): bool
     {
         return true;
     }
 
-    protected function validateJob(Config $config) : bool
+    protected function validateJob(Config $config): bool
     {
         return true;
     }
 
-    protected function translate(string $key) : string
+    protected function translate(string $key): string
     {
         $linkText = $this->languageService->sL(
-            'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang_db.xlf/locallang_db.xlf:' . $key
+            'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang_db.xlf:'.$key
         );
 
         return $linkText;

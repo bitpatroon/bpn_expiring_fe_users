@@ -31,6 +31,6 @@ use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 
 interface ActionInterface
 {
-    public function execute(Config $config, array $users);
+    public function execute(Config $config, array $users) : bool;
 
 }

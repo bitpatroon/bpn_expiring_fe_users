@@ -29,7 +29,6 @@ namespace BPN\BpnExpiringFeUsers\Domain\Repository;
 
 use BPN\BpnExpiringFeUsers\Controller\ExtendController;
 use BPN\BpnExpiringFeUsers\Domain\Model\Config;
-use BPN\BpnExpiringFeUsers\Service\ExpireActionService;
 use BPN\BpnExpiringFeUsers\Traits\RepositoryTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -64,11 +63,11 @@ class LogRepository extends Repository
     public function addLog(Config $config, int $userId, string $action, string $message)
     {
         $insertFields = [
-            'crdate' => time(),
-            'job' => $config->getUid(),
+            'crdate'  => time(),
+            'job'     => $config->getUid(),
             'fe_user' => $userId,
-            'action' => $action,
-            'msg' => $message,
+            'action'  => $action,
+            'msg'     => $message,
         ];
 
         if ($config->getTestmode()) {
@@ -97,7 +96,7 @@ class LogRepository extends Repository
     /**
      * Checks if a fe_user is found in a specific jobs sentlog.
      */
-    public function isInSentLog(int $job, int $userId, int $testmode): bool
+    public function isInSentLog(int $job, int $userId, int $testmode) : bool
     {
         $table = self::TABLE;
 
@@ -107,8 +106,8 @@ class LogRepository extends Repository
             ['uid'],
             $table,
             [
-                'job' => $job,
-                'fe_user' => $userId,
+                'job'      => $job,
+                'fe_user'  => $userId,
                 'testmode' => $testmode,
             ]
         )->fetchAssociative();
@@ -119,7 +118,7 @@ class LogRepository extends Repository
     /**
      * @deprecated Use isInSentLog
      */
-    public function hasLogEntries(int $job, int $user, int $testmode): bool
+    public function hasLogEntries(int $job, int $user, int $testmode) : bool
     {
         return $this->isInSentLog($job, $user, $testmode);
     }
@@ -139,7 +138,7 @@ class LogRepository extends Repository
         $rows = [];
         if ($data) {
             foreach ($data as $row) {
-                $rows[(int) $row['uid']] = $row;
+                $rows[(int)$row['uid']] = $row;
             }
         }
 
@@ -161,15 +160,15 @@ class LogRepository extends Repository
                 'fe_users',
                 'fe_users',
                 $queryBuilder->expr()->eq(
-                    $table.'.fe_user',
+                    $table . '.fe_user',
                     $queryBuilder->quoteIdentifier('fe_users.uid')
                 )
             )
             ->where(
-                $queryBuilder->expr()->eq($table.'.job', $uid),
-                $queryBuilder->expr()->eq($table.'.deleted', 0),
+                $queryBuilder->expr()->eq($table . '.job', $uid),
+                $queryBuilder->expr()->eq($table . '.deleted', 0),
             )
-            ->orderBy($table.'.uid')
+            ->orderBy($table . '.uid')
             ->setMaxResults(1000);
 
         return $queryBuilder->execute()->fetchAllAssociative();
@@ -196,7 +195,7 @@ class LogRepository extends Repository
         return $queryBuilder->execute()->fetchAssociative();
     }
 
-    public function setInput($input): LogRepository
+    public function setInput($input) : LogRepository
     {
         if ($input) {
             $this->input = $input;
@@ -205,7 +204,7 @@ class LogRepository extends Repository
         return $this;
     }
 
-    public function setOutput($output): LogRepository
+    public function setOutput($output) : LogRepository
     {
         if ($output) {
             $this->output = $output;
@@ -237,7 +236,7 @@ class LogRepository extends Repository
                 $queryBuilder->expr()->eq('job', $config->getUid()),
                 $queryBuilder->expr()->eq('fe_user', $userId),
                 $queryBuilder->expr()->eq('deleted', 0),
-                $queryBuilder->expr()->eq('action', ExtendController::ACTION),
+                $queryBuilder->expr()->eq('action', $queryBuilder->createNamedParameter(ExtendController::ACTION)),
                 $queryBuilder->expr()->lt('crdate', $monthAhead),
                 $queryBuilder->expr()->gt('crdate', $linkTimeStamp)
             );

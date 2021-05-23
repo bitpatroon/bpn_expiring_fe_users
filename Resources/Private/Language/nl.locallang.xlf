@@ -3,25 +3,41 @@
   <file source-language="en" target-language="nl" datatype="plaintext" original="messages" data="2019-01-07T14-10-10" product-name="bpn_expiring_fe_users">
     <header/>
     <body>
-      <trans-unit id="pi1.extended" xml:space="preserve">
+      <trans-unit id="result.extended" xml:space="preserve">
         <source>Your account has been extended.</source>
         <target>Uw account is verlengd.</target>
       </trans-unit>
-      <trans-unit id="pi1.extendedgroup" xml:space="preserve">
+      <trans-unit id="result.extendedgroup" xml:space="preserve">
         <source>Your group membership has been extended.</source>
-        <target>Uw groep lidmaatschap is verlengd.</target>
+        <target>Uw groepslidmaatschap is verlengd.</target>
       </trans-unit>
-      <trans-unit id="pi1.expired" xml:space="preserve">
+      <trans-unit id="result.expired" xml:space="preserve">
         <source>The link has expired and is no longer valid. It can only be used for a few days after receiving it.</source>
         <target>De link is verlopen en niet geldig meer. Na ontvangst is de link maar enkele dagen geldig.</target>
       </trans-unit>
-      <trans-unit id="pi1.invalidhash" xml:space="preserve">
-        <source>Invalid link.</source>
-        <target>Ongeldige link.</target>
+      <trans-unit id="result.invalidhash" xml:space="preserve">
+        <source>The link is invalid.</source>
+        <target>De link is ongeldig.</target>
       </trans-unit>
-      <trans-unit id="pi1.alreadyextended" xml:space="preserve">
-        <source>This account was already extended not too long ago, the link can not be used again.</source>
-        <target>Dit account is recentelijk al verlengd, de link kan niet nogmaals worden gebruikt.</target>
+      <trans-unit id="result.already.extended" xml:space="preserve">
+        <source>This account was already extended not too long ago. The link can not be used again.</source>
+        <target>Dit account is recentelijk al verlengd. De link kan niet nogmaals worden gebruikt.</target>
+      </trans-unit>
+      <trans-unit id="result.extendedgroup" xml:space="preserve">
+        <source>Your group membership ###GROUPID### has been extended until ###ENDTIME###.</source>
+        <target>Uw groepslidmaatschap voor groep ###GROUPID### is verlengd tot ###ENDTIME###.</target>
+      </trans-unit>
+      <trans-unit id="log.extendedgroup" xml:space="preserve">
+        <source>User has expiring group ###GROUPID### until ###ENDTIME###.</source>
+        <target>Gebruiker heeft nu verlopende toegang ###GROUPID### tot ###ENDTIME###.</target>
+      </trans-unit>
+      <trans-unit id="result.extended_by_link" xml:space="preserve">
+        <source>Your account has been extended until ###ENDTIME###.</source>
+        <target>Uw account is verlengd tot ###ENDTIME###.</target>
+      </trans-unit>
+      <trans-unit id="log.extended_by_link" xml:space="preserve">
+        <source>User has been extended by email until ###ENDTIME###.</source>
+        <target>Gebruiker is verlengd via e-mail tot ###ENDTIME###.</target>
       </trans-unit>
     </body>
   </file>

@@ -3,7 +3,10 @@
       data-namespace-typo3-fluid="true"
       lang="en">
 
-<div>
+<div class="tx_bpnextendusers extend-user-handler">
     <f:render partial="Errors" arguments="{errors:errors}"/>
+    <f:if condition="{actionResult}">
+        <div data-field="result"><i class="fa fa-check"></i>&nbsp;{result}</div>
+    </f:if>
 </div>
 </html>

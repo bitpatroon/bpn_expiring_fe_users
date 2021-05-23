@@ -43,6 +43,7 @@ final class MailActionService extends AbstractActionService
     use FrontEndUserTrait;
     use FrontEndUserGroupTrait;
 
+    const SECRET = '*4g&b@R#9Hx78rVP';
     protected $action = 'mail';
 
     protected function beforeExecutingSingle(Config $config, array $user, int $userId) : bool
@@ -141,28 +142,29 @@ final class MailActionService extends AbstractActionService
 
         $reactivateLinkForExpiringGroups = (20 == $config->getReactivateLink());
         if ($config->getReactivateLink() || $reactivateLinkForExpiringGroups) {
-            $params = sprintf(
-                '/?&user=%s&time=%s&extend=%s&job=%s',
-                $userId,
-                time(),
-                $config->getExtendBy(),
-                $config->getUid()
-            );
+            $params = [
+                'user'   => $userId,
+                'time'   => time(),
+                'extend' => $config->getExtendBy(),
+                'job'    => $config->getUid(),
+            ];
             if ($reactivateLinkForExpiringGroups) {
                 // add which group to extend to url
-                $params .= '&groups=' . $config->getMemberOf();
+                $params['groups'] = $config->getMemberOf();
             }
-            $params .= sprintf('&cHash=%s', GeneralUtility::hmac($params));
-            $url = rtrim($config->getPage(), '/') . $params;
-
+            $cs = $this->generateHash($params);
+            $params['cs'] = $cs;
+            $queryString = http_build_query($params);
+            $url = rtrim($config->getPage(), '/');
             if (!Environment::getContext()->isDevelopment()) {
                 $linkService = new LinkService();
                 $url = $linkService->makeAbsoluteHttpsUrl(rtrim($config->getPage(), '/'));
-                $url .= $params;
             }
 
+            $url .= (strpos($url, '?') ? '&' : '?') . http_build_query(['c' => base64_encode($queryString)]);
+
             $extendLink = sprintf(
-                '<a href="%s">%s</a><p>%s:<br>%s</p>',
+                '<a href="%s" class="extend-link">%s</a><p>%s:<br>%s</p>',
                 $url,
                 htmlspecialchars($this->translate('mailAction.extendby')),
                 $this->translate('mailAction.or-copy-paste'),
@@ -179,7 +181,7 @@ final class MailActionService extends AbstractActionService
 
         $emailText = str_replace(
             ['###LINK###', '###NAME###', '###GROUPNAMES###', $groupNamesList],
-            [$extendLink, $userRecord['name']],
+            [$extendLink, $this->getFullName($userRecord)],
             $emailText
         );
 
@@ -219,4 +221,67 @@ final class MailActionService extends AbstractActionService
         $this->dispatchEvent($config, $action, $userId, true);
     }
 
+    private function getFullName(array $userRecord)
+    {
+        if (!$userRecord) {
+            return '[user]';
+        }
+
+        $result = [
+            0   => $userRecord['first_name'],
+            100 => $userRecord['last_name'],
+        ];
+
+        if ($userRecord['middle_name']) {
+            $result[50] = $userRecord['middle_name'];
+        }
+
+        ksort($result);
+        $result = implode(' ', $result);
+        $result = trim($result);
+        if (!$result) {
+            $result = sprintf('[user: %s]', $userRecord['uid']);
+        }
+
+        return $result;
+    }
+
+    protected function generateHash(array $arguments) : string
+    {
+        $queryString = http_build_query($arguments);
+
+        return GeneralUtility::hmac($queryString, self::SECRET);
+    }
+
+    public function getLinkArguments() : array
+    {
+        $queryString = GeneralUtility::_GP('c');
+        if (!$queryString) {
+            throw new \RuntimeException('result.invalidhash', 1621772396);
+        }
+        $queryString = base64_decode($queryString);
+        if (!$queryString || strpos($queryString, '&cs=') === false) {
+            throw new \RuntimeException('result.invalidhash', 1621772630);
+        }
+
+        parse_str($queryString, $parts);
+        if (!$parts) {
+            throw new \RuntimeException('result.invalidhash', 1621773192);
+        }
+
+        return $parts;
+    }
+
+    public function validateUrl() : void
+    {
+        $parts = $this->getLinkArguments();
+
+        $hash = $parts['cs'];
+        unset($parts['cs']);
+        $calculatedHash = GeneralUtility::hmac(http_build_query($parts), self::SECRET);
+
+        if ($calculatedHash !== $hash) {
+            throw new \RuntimeException('result.invalidhash', 1621769030);
+        }
+    }
 }

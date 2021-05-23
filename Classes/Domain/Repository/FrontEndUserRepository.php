@@ -331,7 +331,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         }
 
         $daysFuture = strtotime('+' . $config->getDays() . ' days');
-        $rows = $this->getUserByConfig($config);
+        $rows = $this->getUserByConfig($config, $userId, $allowExpired);
 
         $users = [];
         foreach ($rows as $currentUserId => $user) {
@@ -526,32 +526,34 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         return $newEndTimeGroup;
     }
 
-    public function extend(int $userId, int $extendWithDays = 31) : bool
+    public function extend(int $userId, int $extendWithDays = 31) : int
     {
         $table = self::TABLE;
         /** @var Connection $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable($table);
 
-        $userRecord = $queryBuilder->select([ExpiringGroupRepository::FIELD], $table, ['uid' => $userId]);
+        $userRecord = $queryBuilder
+            ->select(['endtime'], $table, ['uid' => $userId])
+            ->fetchAssociative();
         if (!$userRecord) {
-            return false;
+            return 0;
         }
         $endTime = max((int)$userRecord['endtime'], time());
-
-        // calculate and set new endtime
-        $endtime = strtotime('+' . $extendWithDays . ' days', $endTime);
+        $newEndTime = strtotime('+' . $extendWithDays . ' days', $endTime);
+        // remove seconds
+        $newEndTime = $newEndTime - ($newEndTime % 86400);
 
         $queryBuilder
             ->update(
                 $table,
                 [
                     'tstamp'  => time(),
-                    'endtime' => $endtime
+                    'endtime' => $newEndTime
                 ],
                 ['uid' => $userId]
             );
 
-        return true;
+        return $newEndTime;
     }
 }

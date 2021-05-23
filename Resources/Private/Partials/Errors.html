@@ -3,11 +3,18 @@
       lang="en">
 
 <f:if condition="{errors}">
-    <div class="alert alert-danger" role="alert">
+    <div class="alert alert-danger"
+         role="alert">
         <ul>
-        <f:for as="error" each="{errors}">
-            <li>{error.message} [{error.code}]</li>
-        </f:for>
+            <f:for as="error"
+                   each="{errors}">
+                <li>
+                    <f:if condition="{error.message}">
+                        <f:then>{error.message} [{error.code}]</f:then>
+                        <f:else>{error}</f:else>
+                    </f:if>
+                </li>
+            </f:for>
         </ul>
     </div>
 </f:if>

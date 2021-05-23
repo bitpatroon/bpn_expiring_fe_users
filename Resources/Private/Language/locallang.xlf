@@ -3,17 +3,20 @@
   <file source-language="en" datatype="plaintext" original="messages" product-name="bpn_expiring_fe_users">
     <header/>
     <body>
-      <trans-unit id="pi1.extended" xml:space="preserve">
+      <trans-unit id="result.extended" xml:space="preserve">
         <source>Your account has been extended.</source>
       </trans-unit>
-      <trans-unit id="pi1.expired" xml:space="preserve">
+      <trans-unit id="result.extendedgroup" xml:space="preserve">
+        <source>Your group membership has been extended.</source>
+        </trans-unit>
+      <trans-unit id="result.expired" xml:space="preserve">
         <source>The link has expired and is no longer valid. It can only be used for a few days after receiving it.</source>
       </trans-unit>
-      <trans-unit id="pi1.invalidhash" xml:space="preserve">
-        <source>Invalid link.</source>
+      <trans-unit id="result.invalidhash" xml:space="preserve">
+        <source>The link is invalid.</source>
       </trans-unit>
-      <trans-unit id="pi1.alreadyextended" xml:space="preserve">
-        <source>This account was already extended not too long ago, the link can not be used again.</source>
+      <trans-unit id="result.already.extended" xml:space="preserve">
+        <source>This account was already extended not too long ago. The link can not be used again.</source>
       </trans-unit>
       <trans-unit id="result.extendedgroup" xml:space="preserve">
         <source>Your group membership ###GROUPID### has been extended until ###ENDTIME###.</source>

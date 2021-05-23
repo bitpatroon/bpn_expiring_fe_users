@@ -29,9 +29,12 @@ namespace BPN\BpnExpiringFeUsers\Controller;
 
 use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 use BPN\BpnExpiringFeUsers\Event\ActionEvent;
+use BPN\BpnExpiringFeUsers\Service\MailActionService;
 use BPN\BpnExpiringFeUsers\Traits\ConfigTrait;
 use BPN\BpnExpiringFeUsers\Traits\FrontEndUserTrait;
 use BPN\BpnExpiringFeUsers\Traits\LogTrait;
+use Exception;
+use RuntimeException;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
@@ -52,87 +55,93 @@ class ExtendController extends ActionController
     public function injectLanguageService(LanguageService $languageService)
     {
         $this->languageService = $languageService;
+        $this->languageService->init('nl');
     }
 
-    public function extendAction(int $user, string $time, int $extend, int $job, int $group = 0)
+    /** @var MailActionService */
+    protected $mailActionService;
+
+    public function injectMailActionService(MailActionService $mailActionService)
     {
-//        $params = '/?&u=' . $this->get['u'] . '&t=' . $this->get['t'] . '&e=' . $this->get['e'] . '&r=' . $this->get['r'];
-//        if ($this->get['g']) {
-//            $params .= '&g=' . $this->get['g'];
-//        }
-
-//        $c1 = $this->get['cHash'];
-//        $c2 = GeneralUtility::hmac($params);
-
-//        if ($c1 !== $c2) {
-//            $content = htmlspecialchars($this->pi_getLL('pi1.invalidhash'));
-//        } else {
-
-        // TODO : check if link is valid
-
-        $config = $this->configRepository->findByUid($job);
-
-        $errorKey = $this->validArguments($config, $time, $user);
-        if ($errorKey) {
-            $this->view->assign('error', $this->errors);
-
-            return;
-        }
-
-        $result = false;
-        $userId = $user;
-        if ($group) {
-            $extendedUntil = $this->frontEndUserRepository->addExpiringGroup($userId, $group);
-            $this->frontEndUserRepository->updateLastLogin($userId);
-
-            if ($extendedUntil) {
-                $this->setResult(
-                    $config,
-                    $userId,
-                    'result.extendedgroup',
-                    'log.extendedgroup',
-                    ['groupid' => $group, 'endtime' => $extendedUntil]
-                );
-                $result = true;
-            }
-        } else {
-            $extendedUntil = $this->frontEndUserRepository->extend($userId, $extend);
-            $this->frontEndUserRepository->updateLastLogin($userId);
-
-            if ($extendedUntil) {
-                $this->setResult(
-                    $config,
-                    $userId,
-                    'result.extended_by_link',
-                    'log.extended_by_link',
-                    ['endtime' => $extendedUntil]
-                );
-                $result = true;
-            }
-        }
-
-        $event = new ActionEvent();
-        $event->setUserId($userId)
-            ->setResult($result)
-            ->setAction(self::ACTION)
-            ->setConfig($config->getUid());
-        $this->eventDispatcher->dispatch($event);
+        $this->mailActionService = $mailActionService;
     }
 
-    private function validArguments(?Config $config, int $time, int $userId) : bool
+    public function extendAction()
+    {
+        try {
+//            $user = (int)(GeneralUtility::_GP('user') ?? 0);
+//            $time = (int)(GeneralUtility::_GP('time') ?? 0);
+//            $extend = (int)(GeneralUtility::_GP('extend') ?? 0);
+//            $job = (int)(GeneralUtility::_GP('job') ?? 0);
+//            $group = (int)(GeneralUtility::_GP('group') ?? 0);
+
+            $this->mailActionService->validateUrl();
+            $arguments = $this->mailActionService->getLinkArguments();
+            $userId = (int) $arguments['user'];
+            $time = (int) $arguments['time'];
+            $extend = (int) $arguments['extend'];
+            $jobId = (int) $arguments['job'];
+            $groupId = (int) $arguments['group'];
+
+            $config = $this->configRepository->findByUid($jobId);
+
+            $this->validArguments($config, $time, $userId);
+
+            $result = false;
+            if ($groupId) {
+                $extendedUntil = $this->frontEndUserRepository->addExpiringGroup($userId, $groupId);
+                $this->frontEndUserRepository->updateLastLogin($userId);
+
+                if ($extendedUntil) {
+                    $this->setResult(
+                        $config,
+                        $userId,
+                        'result.extendedgroup',
+                        'log.extendedgroup',
+                        ['groupid' => $groupId, 'endtime' => $extendedUntil]
+                    );
+                    $result = true;
+                }
+            } else {
+                $extendedUntil = $this->frontEndUserRepository->extend($userId, $extend);
+                $this->frontEndUserRepository->updateLastLogin($userId);
+
+                if ($extendedUntil) {
+                    $this->setResult(
+                        $config,
+                        $userId,
+                        'result.extended_by_link',
+                        'log.extended_by_link',
+                        ['endtime' => date('d-m-Y', $extendedUntil)]
+                    );
+                    $result = true;
+                }
+            }
+
+            $event = new ActionEvent();
+            $event->setUserId($userId)
+                ->setResult($result)
+                ->setAction(self::ACTION)
+                ->setConfig($config->getUid());
+            $this->eventDispatcher->dispatch($event);
+        } catch (Exception $exception) {
+            $this->errors[] = $exception;
+        }
+        $this->view->assign('errors', $this->errors);
+    }
+
+    private function validArguments(?Config $config, int $time, int $userId)
     {
         $monthAgo = strtotime('-31 days');
         if ($time <= $monthAgo) {
-            $this->errors[] = 'link.expired';
+            throw new RuntimeException($this->translate('link.expired'), 1621768798);
         }
 
         if (!$config) {
-            $this->errors[] = 'job.not.found';
+            throw new RuntimeException($this->translate('job.not.found'), 1621768932);
         } elseif ($this->logRepository->isAccountAlreadyExtended($config, $userId, $time)) {
-            $this->errors[] = 'already.extended';
+            throw new RuntimeException($this->translate('result.already.extended'), 1621768948);
         }
-
-        return !empty($this->errors);
     }
 
     private function setResult(
@@ -147,23 +156,24 @@ class ExtendController extends ActionController
 
         if ($arguments) {
             foreach ($arguments as $key => $value) {
-                $text = str_replace('###' . $key . '###', $value, $text);
-                $log = str_replace('###' . $key . '###', $value, $log);
+                $replaceKey = '###'.strtoupper($key).'###';
+                $text = str_replace($replaceKey, $value, $text);
+                $log = str_replace($replaceKey, $value, $log);
             }
         }
 
         $this->addLog($config, $userId, self::ACTION, $log);
 
         $this->view->assign('result', $text);
+        $this->view->assign('actionResult', 1);
     }
 
     protected function translate(string $key) : string
     {
         $linkText = $this->languageService->sL(
-            'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang.xlf/locallang_db.xlf:' . $key
+            'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang.xlf:'.$key
         );
 
         return $linkText;
     }
-
 }

@@ -33,7 +33,9 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 class ExpiringGroupRepository extends Repository
 {
     const RE_GROUP_UIDS = '/(\d+)\|(\d+)\|(\d+)\**/';
-    const FIELD = 'tx_bpnexpiringfegroups_groups';
+    const TABLE = 'tx_bpnexpiringfeusers_config';
+    // users field
+    const FIELD = 'tx_expiringfegroups_groups';
 
     /**
      * Gets the group uids which are active

@@ -97,7 +97,7 @@ class LinkService
 
         $absFilePath = GeneralUtility::getFileAbsFileName($path);
         if ($absFilePath) {
-            return '/' . substr($absFilePath, strlen($this->getPublicRoot()));
+            return '/'.substr($absFilePath, strlen($this->getPublicRoot()));
         }
 
         $match = null;
@@ -112,8 +112,17 @@ class LinkService
         return $path;
     }
 
-    public function getPublicRoot(){
+    public function getPublicRoot()
+    {
         return Environment::getPublicPath();
+    }
+
+    public function calculateLinkCheckSum(string $queryString)
+    {
+        return md5(
+            $queryString,
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey']
+        );
     }
 
 }
