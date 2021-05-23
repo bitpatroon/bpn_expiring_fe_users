@@ -92,18 +92,18 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
      *
      * @return void
      */
-    public function setAccountExpirationDate(int $uid, string $endtime, Config $config)
+    public function setAccountExpirationDate(int $uid, int $endtime, Config $config)
     {
         $table = self::TABLE;
 
-        $message = 'fe_user has been set to expire on '.date('d-m-y H:i:s', $endtime);
+        $message = 'fe_user has been set to expire on '.date('d-m-Y H:i', $endtime);
         $action = 'expiring';
 
         if ($config->getTestmode() || $config->getEmailTest()) {
             $action = 'testexpiring';
         } else {
             $updateFields = [
-                'tstamp'  => time(),
+                'tstamp' => time(),
                 'endtime' => $endtime,
             ];
 
@@ -218,7 +218,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
             $whereAnd[] = $queryBuilder->expr()->lt('endtime', $daysfuture);
         }
         if ($config->getCondition5()) {
-            // Account expires within..{
+            // Account is expired
             $whereAnd[] = $queryBuilder->expr()->neq('endtime', 0);
             $whereAnd[] = $queryBuilder->expr()->lt('endtime', $time);
             $removeQuerySettings = true;
@@ -312,7 +312,6 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
      *
      * @param array $config       : row with job record info
      * @param bool  $preview      true to preview. False to show for real!
-     * @param int   $userId
      * @param bool  $allowExpired true to include expired users
      *
      * @return array $users: array with all users found
@@ -390,17 +389,20 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
                         break;
                     case 5:
                         // specific filter for expireAction, skip users already in sentlog
-                        if (!$this->logRepository->isInSentLog($config['uid'], $currentUserId, $config['testmode'])) {
+                        if (!$this->logRepository->isInSentLog(
+                            $config->getUid(),
+                            $currentUserId,
+                            $config->getTestmode()
+                        )) {
                             $users[] = $user;
                         }
                         break;
                     default:
                         if ($config->getTestmode()) {
-                            if (
-                            !$this->logRepository->isInSentLog(
-                                $config['uid'],
+                            if (!$this->logRepository->isInSentLog(
+                                $config->getUid(),
                                 $currentUserId,
-                                $config['testmode']
+                                $config->getTestmode()
                             )) {
                                 $users[] = $user;
                             }
@@ -431,8 +433,8 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
             ->update(
                 $table,
                 [
-                    'tstamp'  => time(),
-                    'deleted' => '1',
+                    'tstamp' => time(),
+                    'deleted' => 1,
                 ],
                 ['uid' => $userId]
             );
@@ -450,7 +452,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
             ->update(
                 $table,
                 [
-                    'tstamp'  => time(),
+                    'tstamp' => time(),
                     'disable' => '1',
                 ],
                 ['uid' => $userId]
@@ -469,7 +471,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
             ->update(
                 $table,
                 [
-                    'tstamp'    => time(),
+                    'tstamp' => time(),
                     'usergroup' => $newGroups,
                 ],
                 ['uid' => $userId]
@@ -494,9 +496,9 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
 
     public function addExpiringGroup(int $userId, int $groupId): int
     {
-        $newEndTimeGroup = strtotime(sprintf("+%d days", $groupId));
+        $newEndTimeGroup = strtotime(sprintf('+%d days', $groupId));
 
-        $groupEntry = sprintf("%d|%s|%s", $groupId, time(), $newEndTimeGroup);
+        $groupEntry = sprintf('%d|%s|%s', $groupId, time(), $newEndTimeGroup);
 
         $table = self::TABLE;
         /** @var Connection $queryBuilder */
@@ -519,7 +521,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
             ->update(
                 $table,
                 [
-                    'tstamp'                       => time(),
+                    'tstamp' => time(),
                     ExpiringGroupRepository::FIELD => $newGroups,
                 ],
                 ['uid' => $userId]
@@ -550,7 +552,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
             ->update(
                 $table,
                 [
-                    'tstamp'  => time(),
+                    'tstamp' => time(),
                     'endtime' => $newEndTime,
                 ],
                 ['uid' => $userId]

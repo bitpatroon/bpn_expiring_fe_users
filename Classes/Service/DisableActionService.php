@@ -43,9 +43,9 @@ final class DisableActionService extends AbstractActionService
     function getDefaultActionMessage(bool $result) : string
     {
         if ($result) {
-            return 'user will expire after %s days.';
+            return 'user is disabled.';
         }
 
-        return 'Failed to disable the user';
+        return 'Failed to disable user';
     }
 }

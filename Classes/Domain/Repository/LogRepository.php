@@ -112,7 +112,7 @@ class LogRepository extends Repository
             ]
         )->fetchAssociative();
 
-        return false != empty($rows);
+        return !empty($rows);
     }
 
     /**
