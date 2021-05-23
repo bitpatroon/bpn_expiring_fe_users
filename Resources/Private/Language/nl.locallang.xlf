@@ -24,12 +24,12 @@
         <target>Dit account is recentelijk al verlengd. De link kan niet nogmaals worden gebruikt.</target>
       </trans-unit>
       <trans-unit id="result.extendedgroup" xml:space="preserve">
-        <source>Your group membership ###GROUPID### has been extended until ###ENDTIME###.</source>
-        <target>Uw groepslidmaatschap voor groep ###GROUPID### is verlengd tot ###ENDTIME###.</target>
+        <source>Your group membership ###GROUPNAME### has been extended until ###ENDTIME###.</source>
+        <target>Uw groepslidmaatschap voor groep ###GROUPNAME### is verlengd tot ###ENDTIME###.</target>
       </trans-unit>
       <trans-unit id="log.extendedgroup" xml:space="preserve">
-        <source>User has expiring group ###GROUPID### until ###ENDTIME###.</source>
-        <target>Gebruiker heeft nu verlopende toegang ###GROUPID### tot ###ENDTIME###.</target>
+        <source>User has expiring group ###GROUPNAME### until ###ENDTIME###.</source>
+        <target>Gebruiker heeft nu verlopende toegang ###GROUPNAME### tot ###ENDTIME###.</target>
       </trans-unit>
       <trans-unit id="result.extended_by_link" xml:space="preserve">
         <source>Your account has been extended until ###ENDTIME###.</source>

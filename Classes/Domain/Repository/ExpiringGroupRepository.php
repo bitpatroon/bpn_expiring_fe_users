@@ -99,7 +99,7 @@ class ExpiringGroupRepository extends Repository
      *
      * @return ExpiringGroupModel[]
      */
-    public function getAllExpiringGroups(?string $expiringGroupsList) : array
+    public function getAllExpiringGroups(?string $expiringGroupsList): array
     {
         $result = [];
 
@@ -119,8 +119,8 @@ class ExpiringGroupRepository extends Repository
                 continue;
             }
 
-            $start = (int)$startTimes[$index];
-            $end = (int)$endTimes[$index];
+            $start = (int) $startTimes[$index];
+            $end = (int) $endTimes[$index];
 
             $expiringGroupModel = new ExpiringGroupModel();
             $expiringGroupModel
@@ -136,7 +136,7 @@ class ExpiringGroupRepository extends Repository
     /**
      * Converts the expiring groups for a user to an array.
      */
-    public function getExpiringGroups(string $expiringGroupsList) : array
+    public function getExpiringGroups(string $expiringGroupsList): array
     {
         $result = [];
 
@@ -154,7 +154,7 @@ class ExpiringGroupRepository extends Repository
      *
      * @deprecated Use getExpiringGroups
      */
-    public function getExpiringGroupsArray(string $expiringGroupsList) : array
+    public function getExpiringGroupsArray(string $expiringGroupsList): array
     {
         return $this->getExpiringGroups($expiringGroupsList);
     }
@@ -173,7 +173,7 @@ class ExpiringGroupRepository extends Repository
         $expiringGroups = $this->getExpiringGroups($userRecord[self::FIELD]);
 
         foreach ($expiringGroups as $expiringGroup) {
-            if (($expiringGroup[0] == $groupId) && $expiringGroup[2] > $daysInTheFuture) {
+            if (((int) $expiringGroup[0] == $groupId) && (int) $expiringGroup[2] > $daysInTheFuture) {
                 return true;
             }
         }

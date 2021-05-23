@@ -142,6 +142,7 @@ return [
             ],
         ],
         'expiringGroup'     => [
+            'displayCond' => 'FIELD:condition20:>:0',
             'label'  => $languageFile . ':tx_bpnexpiringfeusers_config.expiringGroup',
             'config' => [
                 'type'                             => 'select',
@@ -382,8 +383,10 @@ return [
             'showitem' => 'todo,hidden,testmode,limiter,title,excludesummer,' .
                 '--div--;Conditions,sysfolder,' .
                 '--palette--;;2,' .
-                '--palette--;;4,expiringGroup,' .
-                '--palette--;' . $languageFile. ':tx_bpnexpiringfeusers_config.conditions;3,days,' .
+                '--palette--;;4,' .
+                'days,' .
+                '--palette--;' . $languageFile. ':tx_bpnexpiringfeusers_config.conditions;3,' .
+                '--palette--;;expiringgroups,' .
                 '--div--;E-mail,email_test,email_fromName,email_from,email_bcc,email_subject,email_text,' .
                 '--div--;Account expiration,expires_in,reactivate_link,extend_by,page,' .
                 '--div--;All Matching users,allmatchingusers,' .
@@ -446,11 +449,11 @@ return [
                     'condition5',
                     'condition6',
                     'condition7',
-                    'condition8',
-                    'condition20'
+                    'condition8'
                 ]
             ),
         ],
         4 => ['showitem' => 'noMemberOf,--linebreak--,andor_not'],
+        'expiringgroups' => ['showitem' => 'condition20,--linebreak--, expiringGroup'],
     ],
 ];

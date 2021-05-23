@@ -10,10 +10,10 @@ call_user_func(
             'BpnExpiringFeUsers',
             'Extend',
             [
-                \BPN\BpnExpiringFeUsers\Controller\ExtendController::class => 'extend'
+                \BPN\BpnExpiringFeUsers\Controller\ExtendController::class => 'extend',
             ],
             [
-                \BPN\BpnExpiringFeUsers\Controller\ExtendController::class => 'extend'
+                \BPN\BpnExpiringFeUsers\Controller\ExtendController::class => 'extend',
             ]
         );
 
@@ -43,15 +43,19 @@ call_user_func(
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeRegistry'][1621627544] = [
             'nodeName' => 'expiringUsersNextMatching',
             'priority' => 40,
-            'class'    => \BPN\BpnExpiringFeUsers\Backend\UserFunction\NextMatchingUsers::class
+            'class'    => \BPN\BpnExpiringFeUsers\Backend\UserFunction\NextMatchingUsers::class,
         ];
 
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeRegistry'][1621627545] = [
             'nodeName' => 'expiringUserslog',
             'priority' => 40,
-            'class'    => \BPN\BpnExpiringFeUsers\Backend\UserFunction\Log::class
+            'class'    => \BPN\BpnExpiringFeUsers\Backend\UserFunction\Log::class,
         ];
 
-        $GLOBALS['TYPO3_CONF_VARS']['FE']['eID_include']['tx_bpnexpiringfeusers'] = \BPN\BpnExpiringFeUsers\Start::class . '::process';
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['eID_include']['tx_bpnexpiringfeusers'] = \BPN\BpnExpiringFeUsers\Start::class.'::process';
+
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['formDataGroup']['tcaDatabaseRecord'][\BPN\BpnExpiringFeUsers\Backend\DataProviders\ExtendLinkDataProvider::class] = [
+            'depends' => [TYPO3\CMS\Backend\Form\FormDataProvider\DatabaseEditRow::class],
+        ];
     }
 );

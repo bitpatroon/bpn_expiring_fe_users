@@ -47,10 +47,11 @@ class Start
         }
 
         $operation = GeneralUtility::_GP('operation');
+        $configUid = GeneralUtility::_GP('config');
 
         switch ($operation) {
             case 'command':
-                $result = $this->runCommand();
+                $result = $this->runCommand($configUid);
                 break;
             default:
                 $result = self::FAILURE;
@@ -60,7 +61,7 @@ class Start
         return new HtmlResponse($result);
     }
 
-    private function runCommand(): string
+    private function runCommand(int $configId = 0): string
     {
         $stringInput = new StringInput('');
         $output = new BufferedOutput();
@@ -68,6 +69,10 @@ class Start
         /** @var RunCommand $runCommand */
         $runCommand = GeneralUtility::makeInstance(ObjectManager::class)
             ->get(RunCommand::class);
+
+        if ($configId) {
+            $runCommand->setConfigId($configId);
+        }
 
         if ($runCommand->execute($stringInput, $output)) {
             $output->write(self::SUCCESS);

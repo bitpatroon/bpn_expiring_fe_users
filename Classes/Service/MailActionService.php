@@ -46,7 +46,7 @@ final class MailActionService extends AbstractActionService
     const SECRET = '*4g&b@R#9Hx78rVP';
     protected $action = 'mail';
 
-    protected function beforeExecutingSingle(Config $config, array $user, int $userId) : bool
+    protected function beforeExecutingSingle(Config $config, array $user, int $userId): bool
     {
         if (!$user['email']) {
             $this->addLog($config, $userId, 'warning', 'fe_user not notified. No e-mail address found.');
@@ -57,7 +57,7 @@ final class MailActionService extends AbstractActionService
         return true;
     }
 
-    protected function executeSingle(Config $config, array $user, int $userId) : bool
+    protected function executeSingle(Config $config, array $user, int $userId): bool
     {
         $this->sendMail($config, $user);
 
@@ -65,7 +65,7 @@ final class MailActionService extends AbstractActionService
         if ($config->getExpiresIn()) {
             $this->frontEndUserRepository->setAccountExpirationDate(
                 $userId,
-                strtotime('+' . $config->getExpiresIn() . ' days'),
+                strtotime('+'.$config->getExpiresIn().' days'),
                 $config
             );
         }
@@ -73,7 +73,7 @@ final class MailActionService extends AbstractActionService
         return true;
     }
 
-    public function getDefaultActionMessage(bool $result) : string
+    public function getDefaultActionMessage(bool $result): string
     {
         if ($result) {
             return 'User was notified by e-mail.';
@@ -85,7 +85,7 @@ final class MailActionService extends AbstractActionService
     /**
      * Validates the job, see if all fields are filled in etc.
      */
-    protected function validateJob(Config $config) : bool
+    protected function validateJob(Config $config): bool
     {
         if ('1' == $config->getReactivateLink() && !$config->getPage()) {
             $this->logRepository->addError($config, 'No extend URL entered in job.');
@@ -102,7 +102,7 @@ final class MailActionService extends AbstractActionService
         if ($config->getEmailTest() && !GeneralUtility::validEmail($config->getEmailTest())) {
             $this->logRepository->addError(
                 $config,
-                'Test email address for this job (' . $config->getUid() . ') is invalid.'
+                'Test email address for this job ('.$config->getUid().') is invalid.'
             );
 
             return false;
@@ -124,10 +124,10 @@ final class MailActionService extends AbstractActionService
 
             return;
         }
-        $userId = (int)$userRecord['uid'];
+        $userId = (int) $userRecord['uid'];
 
         if ($config->getTestmode()) {
-            $this->logRepository->addInfo($config, (int)$userId, 'Job From e-mail address is invalid.');
+            $this->logRepository->addInfo($config, (int) $userId, 'Job From e-mail address is invalid.');
 
             return;
         }
@@ -140,17 +140,17 @@ final class MailActionService extends AbstractActionService
         $emailText = $config->getEmailText();
         $extendLink = '';
 
-        $reactivateLinkForExpiringGroups = (20 == $config->getReactivateLink());
+        $reactivateLinkForExpiringGroups = (20 === $config->getReactivateLink());
         if ($config->getReactivateLink() || $reactivateLinkForExpiringGroups) {
             $params = [
-                'user'   => $userId,
-                'time'   => time(),
+                'user' => $userId,
+                'time' => time(),
                 'extend' => $config->getExtendBy(),
-                'job'    => $config->getUid(),
+                'job' => $config->getUid(),
             ];
             if ($reactivateLinkForExpiringGroups) {
                 // add which group to extend to url
-                $params['groups'] = $config->getMemberOf();
+                $params['group'] = $config->getExpiringGroup();
             }
             $cs = $this->generateHash($params);
             $params['cs'] = $cs;
@@ -161,7 +161,7 @@ final class MailActionService extends AbstractActionService
                 $url = $linkService->makeAbsoluteHttpsUrl(rtrim($config->getPage(), '/'));
             }
 
-            $url .= (strpos($url, '?') ? '&' : '?') . http_build_query(['c' => base64_encode($queryString)]);
+            $url .= (strpos($url, '?') ? '&' : '?').http_build_query(['c' => base64_encode($queryString)]);
 
             $extendLink = sprintf(
                 '<a href="%s" class="extend-link">%s</a><p>%s:<br>%s</p>',
@@ -228,7 +228,7 @@ final class MailActionService extends AbstractActionService
         }
 
         $result = [
-            0   => $userRecord['first_name'],
+            0 => $userRecord['first_name'],
             100 => $userRecord['last_name'],
         ];
 
@@ -246,21 +246,21 @@ final class MailActionService extends AbstractActionService
         return $result;
     }
 
-    protected function generateHash(array $arguments) : string
+    protected function generateHash(array $arguments): string
     {
         $queryString = http_build_query($arguments);
 
         return GeneralUtility::hmac($queryString, self::SECRET);
     }
 
-    public function getLinkArguments() : array
+    public function getLinkArguments(): array
     {
         $queryString = GeneralUtility::_GP('c');
         if (!$queryString) {
             throw new \RuntimeException('result.invalidhash', 1621772396);
         }
         $queryString = base64_decode($queryString);
-        if (!$queryString || strpos($queryString, '&cs=') === false) {
+        if (!$queryString || false === strpos($queryString, '&cs=')) {
             throw new \RuntimeException('result.invalidhash', 1621772630);
         }
 
@@ -272,7 +272,7 @@ final class MailActionService extends AbstractActionService
         return $parts;
     }
 
-    public function validateUrl() : void
+    public function validateUrl(): void
     {
         $parts = $this->getLinkArguments();
 

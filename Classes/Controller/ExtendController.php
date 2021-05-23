@@ -28,9 +28,11 @@
 namespace BPN\BpnExpiringFeUsers\Controller;
 
 use BPN\BpnExpiringFeUsers\Domain\Model\Config;
+use BPN\BpnExpiringFeUsers\Domain\Model\FrontEndUserGroup;
 use BPN\BpnExpiringFeUsers\Event\ActionEvent;
 use BPN\BpnExpiringFeUsers\Service\MailActionService;
 use BPN\BpnExpiringFeUsers\Traits\ConfigTrait;
+use BPN\BpnExpiringFeUsers\Traits\FrontEndUserGroupTrait;
 use BPN\BpnExpiringFeUsers\Traits\FrontEndUserTrait;
 use BPN\BpnExpiringFeUsers\Traits\LogTrait;
 use Exception;
@@ -43,6 +45,7 @@ class ExtendController extends ActionController
     use LogTrait;
     use ConfigTrait;
     use FrontEndUserTrait;
+    use FrontEndUserGroupTrait;
 
     const ACTION = 'extend';
 
@@ -69,12 +72,6 @@ class ExtendController extends ActionController
     public function extendAction()
     {
         try {
-//            $user = (int)(GeneralUtility::_GP('user') ?? 0);
-//            $time = (int)(GeneralUtility::_GP('time') ?? 0);
-//            $extend = (int)(GeneralUtility::_GP('extend') ?? 0);
-//            $job = (int)(GeneralUtility::_GP('job') ?? 0);
-//            $group = (int)(GeneralUtility::_GP('group') ?? 0);
-
             $this->mailActionService->validateUrl();
             $arguments = $this->mailActionService->getLinkArguments();
             $userId = (int) $arguments['user'];
@@ -93,12 +90,22 @@ class ExtendController extends ActionController
                 $this->frontEndUserRepository->updateLastLogin($userId);
 
                 if ($extendedUntil) {
+                    /** @var FrontEndUserGroup $group */
+                    $group = $this->frontEndUserGroupRepository->findByUid($groupId);
+                    $groupName = $groupId;
+                    if ($group) {
+                        $groupName = $group->getTitle();
+                    }
+
                     $this->setResult(
                         $config,
                         $userId,
                         'result.extendedgroup',
                         'log.extendedgroup',
-                        ['groupid' => $groupId, 'endtime' => $extendedUntil]
+                        [
+                            'group'   => $groupName,
+                            'endtime' => date('d-m-Y', $extendedUntil),
+                        ]
                     );
                     $result = true;
                 }
@@ -168,7 +175,7 @@ class ExtendController extends ActionController
         $this->view->assign('actionResult', 1);
     }
 
-    protected function translate(string $key) : string
+    protected function translate(string $key): string
     {
         $linkText = $this->languageService->sL(
             'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang.xlf:'.$key

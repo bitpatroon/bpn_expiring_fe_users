@@ -96,7 +96,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
     {
         $table = self::TABLE;
 
-        $message = 'fe_user has been set to expire on ' . date('d-m-y H:i:s', $endtime);
+        $message = 'fe_user has been set to expire on '.date('d-m-y H:i:s', $endtime);
         $action = 'expiring';
 
         if ($config->getTestmode() || $config->getEmailTest()) {
@@ -125,7 +125,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         int $userId = 0,
         bool $allowExpired = false,
         int $limit = 1000
-    ) : array {
+    ): array {
         $removeQuerySettings = false;
         $table = self::TABLE;
         /** @var QueryBuilder $queryBuilder */
@@ -177,9 +177,9 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
             $memberOf = $config->getNoMemberOfAsArray();
             if ($memberOf) {
                 foreach ($memberOf as $group) {
-                    $groupConditions[] = 'FIND_IN_SET(:groupId, ' . $queryBuilder->quoteIdentifier(
+                    $groupConditions[] = 'FIND_IN_SET(:groupId, '.$queryBuilder->quoteIdentifier(
                             'usergroup'
-                        ) . ') = 0';
+                        ).') = 0';
                 }
                 $queryBuilder->setParameter('groupId', $group, Connection::PARAM_INT);
 
@@ -193,8 +193,8 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         }
 
         $time = time();                                         // current timestamp
-        $daysago = strtotime('-' . $config->getDays() . ' days');            // timestamp of x days ago
-        $daysfuture = strtotime('+' . $config->getDays() . ' days');        // timestamp of x days in the future
+        $daysago = strtotime('-'.$config->getDays().' days');            // timestamp of x days ago
+        $daysfuture = strtotime('+'.$config->getDays().' days');        // timestamp of x days in the future
 
         // queries for each checkbox
         if ($config->getCondition1()) {
@@ -248,11 +248,11 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
                 foreach ($expiringGroups as $expiringGroupId) {
                     $expWhereOR[] = $queryBuilder->expr()->like(
                         'tx_expiringfegroups_groups',
-                        $queryBuilder->createNamedParameter($expiringGroupId . '|%', Connection::PARAM_STR)
+                        $queryBuilder->createNamedParameter($expiringGroupId.'|%', Connection::PARAM_STR)
                     );
                     $expWhereOR[] = $queryBuilder->expr()->like(
                         'tx_expiringfegroups_groups',
-                        $queryBuilder->createNamedParameter('%*' . $expiringGroupId . '|%', Connection::PARAM_STR)
+                        $queryBuilder->createNamedParameter('%*'.$expiringGroupId.'|%', Connection::PARAM_STR)
                     );
                 }
                 if ($expWhereOR) {
@@ -322,15 +322,15 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         bool $preview = false,
         int $userId = 0,
         bool $allowExpired = false
-    ) : array {
+    ): array {
         // check whether compatible extension is loaded
         $exp_fe_groups = ExtensionManagementUtility::isLoaded('bpn_expiring_fe_groups');
 
-        if (!$preview && $this->dateService->isSummerAndExcluded((array)$config)) {
+        if (!$preview && $this->dateService->isSummerAndExcluded((array) $config)) {
             return [];
         }
 
-        $daysFuture = strtotime('+' . $config->getDays() . ' days');
+        $daysFuture = strtotime('+'.$config->getDays().' days');
         $rows = $this->getUserByConfig($config, $userId, $allowExpired);
 
         $users = [];
@@ -343,7 +343,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
                 $expiringGroups = $this->expiringGroupRepository->getActiveExpiringGroups(
                     $user[ExpiringGroupRepository::FIELD]
                 );
-                if ($expiringGroups) {
+                if (!$expiringGroups) {
                     continue;
                 }
                 foreach ($expiringGroups as $expiringGroup) {
@@ -362,7 +362,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
                     }
 
                     $durationExpiringGroupDays = ($expiringGroup->getEnd() - $expiringGroup->getStart()) / 86400;
-                    if ($durationExpiringGroupDays < (int)$config['days']) {
+                    if ($durationExpiringGroupDays < $config->getDays()) {
                         continue;
                     }
 
@@ -492,7 +492,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
             );
     }
 
-    public function addExpiringGroup(int $userId, int $groupId) : int
+    public function addExpiringGroup(int $userId, int $groupId): int
     {
         $newEndTimeGroup = strtotime(sprintf("+%d days", $groupId));
 
@@ -503,7 +503,9 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable($table);
 
-        $userRecord = $queryBuilder->select([ExpiringGroupRepository::FIELD], $table, ['uid' => $userId]);
+        $userRecord = $queryBuilder
+            ->select([ExpiringGroupRepository::FIELD], $table, ['uid' => $userId])
+            ->fetchAssociative();
         if (!$userRecord) {
             return 0;
         }
@@ -526,7 +528,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         return $newEndTimeGroup;
     }
 
-    public function extend(int $userId, int $extendWithDays = 31) : int
+    public function extend(int $userId, int $extendWithDays = 31): int
     {
         $table = self::TABLE;
         /** @var Connection $queryBuilder */
@@ -539,8 +541,8 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
         if (!$userRecord) {
             return 0;
         }
-        $endTime = max((int)$userRecord['endtime'], time());
-        $newEndTime = strtotime('+' . $extendWithDays . ' days', $endTime);
+        $endTime = max((int) $userRecord['endtime'], time());
+        $newEndTime = strtotime('+'.$extendWithDays.' days', $endTime);
         // remove seconds
         $newEndTime = $newEndTime - ($newEndTime % 86400);
 
@@ -549,7 +551,7 @@ class FrontEndUserRepository extends \TYPO3\CMS\Extbase\Domain\Repository\Fronte
                 $table,
                 [
                     'tstamp'  => time(),
-                    'endtime' => $newEndTime
+                    'endtime' => $newEndTime,
                 ],
                 ['uid' => $userId]
             );

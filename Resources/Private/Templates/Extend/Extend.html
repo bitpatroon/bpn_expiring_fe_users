@@ -4,9 +4,12 @@
       lang="en">
 
 <div class="tx_bpnextendusers extend-user-handler">
-    <f:render partial="Errors" arguments="{errors:errors}"/>
-    <f:if condition="{actionResult}">
-        <div data-field="result"><i class="fa fa-check"></i>&nbsp;{result}</div>
-    </f:if>
+    <f:cache.disable>
+        <f:render partial="Errors"
+                  arguments="{errors:errors}"/>
+        <f:if condition="{actionResult}">
+            <div data-field="result"><i class="fa fa-check"></i>&nbsp;{result}</div>
+        </f:if>
+    </f:cache.disable>
 </div>
 </html>

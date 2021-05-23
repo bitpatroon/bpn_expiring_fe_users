@@ -48,6 +48,9 @@ class RunCommand extends Command
     use ConfigTrait;
     use FrontEndUserTrait;
 
+    /** @var int */
+    private $configId;
+
     /** @var MailActionService */
     protected $mailActionService;
 
@@ -63,13 +66,15 @@ class RunCommand extends Command
     /** @var RemoveGroupActionService */
     protected $removeGroupActionService;
 
-    public function execute(InputInterface $input, OutputInterface $output) : bool
+    public function execute(InputInterface $input, OutputInterface $output): bool
     {
         $this->logRepository
             ->setInput($input)
             ->setOutput($output);
 
-        $configRows = $this->configRepository->findAll();
+        $configRows = $this->configId
+            ? [$this->configRepository->findByUid($this->configId)]
+            : $this->configRepository->findAll();
         if (!$configRows) {
             // do nothing, still result is good!
             return true;
@@ -136,4 +141,17 @@ class RunCommand extends Command
     {
         $this->removeGroupActionService = $removeGroupActionService;
     }
+
+    public function getConfigId(): int
+    {
+        return $this->configId;
+    }
+
+    public function setConfigId(int $configId): RunCommand
+    {
+        $this->configId = $configId;
+
+        return $this;
+    }
+
 }

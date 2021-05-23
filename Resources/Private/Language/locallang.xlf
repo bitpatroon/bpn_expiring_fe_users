@@ -19,10 +19,10 @@
         <source>This account was already extended not too long ago. The link can not be used again.</source>
       </trans-unit>
       <trans-unit id="result.extendedgroup" xml:space="preserve">
-        <source>Your group membership ###GROUPID### has been extended until ###ENDTIME###.</source>
+        <source>Your group membership ###GROUPNAME### has been extended until ###ENDTIME###.</source>
       </trans-unit>
       <trans-unit id="log.extendedgroup" xml:space="preserve">
-        <source>User has expiring group ###GROUPID### until ###ENDTIME###.</source>
+        <source>User has expiring group ###GROUPNAME### until ###ENDTIME###.</source>
       </trans-unit>
       <trans-unit id="result.extended_by_link" xml:space="preserve">
         <source>Your account has been extended by email until ###ENDTIME###.</source>

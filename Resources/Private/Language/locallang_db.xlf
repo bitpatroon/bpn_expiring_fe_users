@@ -73,22 +73,22 @@
         <source>Conditions: All (AND)</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition1" xml:space="preserve">
-        <source>User has not logged in for...</source>
+        <source>User has not logged in for X #days</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition2" xml:space="preserve">
-        <source>Account older than...</source>
+        <source>Account older than X #days</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition3" xml:space="preserve">
         <source>Account is disabled</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition4" xml:space="preserve">
-        <source>Account expires within... (#days)</source>
+        <source>Account expires within X #days</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition5" xml:space="preserve">
         <source>Account is expired</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition6" xml:space="preserve">
-        <source>Account has been expired for..</source>
+        <source>Account has been expired for X #days</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.condition7" xml:space="preserve">
         <source>Account has never logged in</source>
@@ -139,7 +139,7 @@
         <source>Extend by: (in days). Its best to not change this after users have been mailed. This is also used to calculate if its been long enough ago to mail users again</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.page" xml:space="preserve">
-        <source>Full URL to the Page where the Extend plugin resides (REQUIRED when adding Extend link.) (Example: http://www.example.com/extend/)</source>
+        <source>Full URL to the Page where the Extend plugin resides (REQUIRED when adding Extend link.) (Example: https://www.example.com/extend/)</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.allmatchingusers" xml:space="preserve">
         <source>These users match the currently configured conditions</source>
