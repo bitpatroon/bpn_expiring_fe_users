@@ -25,12 +25,12 @@
     },
     "autoload": {
         "psr-4": {
-            "BPN\\ExpiringFeUsers\\": "Classes"
+            "BPN\\BpnExpiringFeUsers\\": "Classes"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "BPN\\ExpiringFeUsers\\Tests\\": "Tests"
+            "BPN\\BpnExpiringFeUsers\\Tests\\": "Tests"
         }
     },
     "extra": {
