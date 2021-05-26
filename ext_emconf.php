@@ -13,8 +13,5 @@ $EM_CONF[$_EXTKEY] = [
     'author_company'   => 'Bitpatroon',
     'version'          => '10.4',
     'constraints'      => [
-        'suggests' => [
-            'bpn_expiring_fe_groups' => '',
-        ],
     ],
 ];
