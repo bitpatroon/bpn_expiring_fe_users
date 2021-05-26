@@ -28,10 +28,10 @@ call_user_func(
         );
 
         // Register scheduler task
-        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['tx_bpnexpiringfeusers_scheduler'] = [
+        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks'][\BPN\BpnExpiringFeUsers\Task\ExpiringGroupsTask::class] = [
             'extension'   => 'bpn_expiring_fe_users',
-            'title'       => 'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang_db.xlf/locallang_db.xlf:scheduler.title',
-            'description' => 'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang_db.xlf/locallang_db.xlf:scheduler.description',
+            'title'       => 'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang_db.xlf:scheduler.title',
+            'description' => 'LLL:EXT:bpn_expiring_fe_users/Resources/Private/Language/locallang_db.xlf:scheduler.description',
         ];
 
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeRegistry'][1621627543] = [

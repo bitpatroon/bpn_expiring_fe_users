@@ -88,6 +88,14 @@ class ConfigRepository extends Repository
         $this->setDefaultQuerySettings($typo3QuerySettings);
     }
 
+    public function allowAllStoragePages()
+    {
+        $typo3QuerySettings = new Typo3QuerySettings();
+        $typo3QuerySettings
+            ->setRespectStoragePage(false);
+        $this->setDefaultQuerySettings($typo3QuerySettings);
+    }
+
     /**
      * Find a record by uid even if it is hidden or deleted.
      *

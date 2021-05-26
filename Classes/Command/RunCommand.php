@@ -72,46 +72,62 @@ class RunCommand extends Command
             ->setInput($input)
             ->setOutput($output);
 
-        $configRows = $this->configId
-            ? [$this->configRepository->findByUid($this->configId)]
-            : $this->configRepository->findAll();
-        if (!$configRows) {
-            // do nothing, still result is good!
-            return true;
-        }
+        $this->doExecute();
 
-        /** @var Config $configRow */
-        foreach ($configRows as $configRow) {
-            /** @var FrontEndUser[]|int[] $users */
-            $users = $this->frontEndUserRepository->findMatchingUsers($configRow);
-            if (empty($users)) {
-                continue;
+        return true;
+    }
+
+    /**
+     * @internal
+     */
+    public function doExecute(): bool
+    {
+        try {
+            $this->configRepository->allowAllStoragePages();
+
+            $configRows = $this->configId
+                ? [$this->configRepository->findByUid($this->configId)]
+                : $this->configRepository->findAll();
+            if (!$configRows) {
+                // do nothing, still result is good!
+                return true;
             }
-            if (![$users]) {
-                continue;
+
+            /** @var Config $configRow */
+            foreach ($configRows as $configRow) {
+                /** @var FrontEndUser[]|int[] $users */
+                $users = $this->frontEndUserRepository->findMatchingUsers($configRow);
+                if (empty($users)) {
+                    continue;
+                }
+                if (![$users]) {
+                    continue;
+                }
+
+                switch ($configRow->getTodo()) {
+                    case ConfigRepository::ACTION_MAIL:
+                        $this->mailActionService->execute($configRow, $users);
+                        break;
+
+                    case ConfigRepository::ACTION_DISABLE:
+                        $this->disableActionService->execute($configRow, $users);
+                        break;
+
+                    case ConfigRepository::ACTION_DELETE:
+                        $this->deleteActionService->execute($configRow, $users);
+                        break;
+
+                    case ConfigRepository::ACTION_REMOVE_GROUP:
+                        $this->removeGroupActionService->execute($configRow, $users);
+                        break;
+
+                    case ConfigRepository::ACTION_EXPIRE:
+                        $this->expireActionService->execute($configRow, $users);
+                        break;
+                }
             }
-
-            switch ($configRow->getTodo()) {
-                case ConfigRepository::ACTION_MAIL:
-                    $this->mailActionService->execute($configRow, $users);
-                    break;
-
-                case ConfigRepository::ACTION_DISABLE:
-                    $this->disableActionService->execute($configRow, $users);
-                    break;
-
-                case ConfigRepository::ACTION_DELETE:
-                    $this->deleteActionService->execute($configRow, $users);
-                    break;
-
-                case ConfigRepository::ACTION_REMOVE_GROUP:
-                    $this->removeGroupActionService->execute($configRow, $users);
-                    break;
-
-                case ConfigRepository::ACTION_EXPIRE:
-                    $this->expireActionService->execute($configRow, $users);
-                    break;
-            }
+        } catch (\Exception $exception) {
+            return false;
         }
 
         return true;

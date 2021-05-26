@@ -31,6 +31,7 @@ use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 use BPN\BpnExpiringFeUsers\Traits\FrontEndUserGroupTrait;
 use BPN\BpnExpiringFeUsers\Traits\FrontEndUserTrait;
 use BPN\BpnExpiringFeUsers\Traits\LogTrait;
+use Exception;
 use Symfony\Component\Mime\Address;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Mail\MailMessage;
@@ -143,10 +144,10 @@ final class MailActionService extends AbstractActionService
         $reactivateLinkForExpiringGroups = (20 === $config->getReactivateLink());
         if ($config->getReactivateLink() || $reactivateLinkForExpiringGroups) {
             $params = [
-                'user' => $userId,
-                'time' => time(),
+                'user'   => $userId,
+                'time'   => time(),
                 'extend' => $config->getExtendBy(),
-                'job' => $config->getUid(),
+                'job'    => $config->getUid(),
             ];
             if ($reactivateLinkForExpiringGroups) {
                 // add which group to extend to url
@@ -216,9 +217,15 @@ final class MailActionService extends AbstractActionService
         $mailMessage->send();
 
         $action = $config->getEmailTest() ? 'testmail' : 'mail';
-        $this->logRepository->addLog($config, $userId, $action, 'user was notified.');
 
-        $this->dispatchEvent($config, $action, $userId, true);
+        try {
+            $this->dispatchEvent($config, $action, $userId, true);
+        } catch (Exception $exception) {
+            $this->logRepository->addError(
+                $config,
+                'Error in chained event (hook): '.$exception->getMessage().' [1622028860549]'
+            );
+        }
     }
 
     private function getFullName(array $userRecord)
@@ -228,7 +235,7 @@ final class MailActionService extends AbstractActionService
         }
 
         $result = [
-            0 => $userRecord['first_name'],
+            0   => $userRecord['first_name'],
             100 => $userRecord['last_name'],
         ];
 

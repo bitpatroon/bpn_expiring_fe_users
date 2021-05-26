@@ -50,7 +50,7 @@ class Log extends AbstractFormElement
         $table = $this->data['tableName'];
         if ($table != ConfigRepository::TABLE) {
             return $this->showError(
-                'Not allowed to use this control on another record other than ' . ConfigRepository::TABLE,
+                'Not allowed to use this control on another record other than '.ConfigRepository::TABLE,
                 $resultArray
             );
         }
@@ -92,15 +92,15 @@ class Log extends AbstractFormElement
 
             foreach ($logs as $log) {
                 $result[] = '<tr>';
-                $result[] = '<td class="col-md-1 text-left">' . $log['uid'] . '&nbsp;</td>';
-                $result[] = '<td class="col-md-2 text-left">' . ($log['crdate'] ? date(
+                $result[] = '<td class="col-md-1 text-left">'.$log['uid'].'&nbsp;</td>';
+                $result[] = '<td class="col-md-2 text-left">'.($log['crdate'] ? date(
                         'd-m-y H:i:s',
                         $log['crdate']
-                    ) : '-') . '&nbsp;</td>';
-                $result[] = '<td class="col-md-3 text-left">' . $log['action'] . '&nbsp;</td>';
-                $result[] = '<td class="col-md-2 text-left">' . date('d-m-y H:s', $log['fe_user']) . '&nbsp;</td>';
-                $result[] = '<td class="col-md-2 text-left">' . date('d-m-y H:s', $log['name']) . '&nbsp;</td>';
-                $result[] = '<td class="col-md-2 text-left">' . $log['msg'] . '</td>';
+                    ) : '-').'&nbsp;</td>';
+                $result[] = '<td class="col-md-3 text-left">'.$log['action'].'&nbsp;</td>';
+                $result[] = '<td class="col-md-2 text-left">'.$log['fe_user'].'&nbsp;</td>';
+                $result[] = '<td class="col-md-2 text-left">'.$log['name'].'&nbsp;</td>';
+                $result[] = '<td class="col-md-2 text-left">'.$log['msg'].'</td>';
                 $result[] = '</tr>';
             }
             $result[] = '</tbody>';
@@ -114,7 +114,7 @@ class Log extends AbstractFormElement
 
     protected function showError(string $message, array $resultArray)
     {
-        $resultArray['html'] = '<div class="alert alert-warning">' . $message . '</div>';
+        $resultArray['html'] = '<div class="alert alert-warning">'.$message.'</div>';
 
         return $resultArray;
     }

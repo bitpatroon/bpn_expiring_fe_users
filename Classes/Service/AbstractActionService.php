@@ -87,7 +87,7 @@ abstract class AbstractActionService implements ActionInterface
 
             $this->beforeExecutingSingle($config, $user, $userId);
             if ($config->getTestmode()) {
-                $this->addInfo($config, $userId, $this->getDefaultActionMessage(true));
+                $this->addInfo($config, $userId, 'TEST:' . $this->getDefaultActionMessage(true));
                 continue;
             }
 
