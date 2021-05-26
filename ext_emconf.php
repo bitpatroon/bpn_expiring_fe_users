@@ -13,5 +13,12 @@ $EM_CONF[$_EXTKEY] = [
     'author_company'   => 'Bitpatroon',
     'version'          => '10.4',
     'constraints'      => [
+        'depends'   => [
+            'typo3'                  => '10.4.0 - 10.9.99',
+            'bpn_expiring_fe_groups' => '',
+        ],
+        'conflicts' => [
+            'itypo_expiring_fe_user' => '',
+        ],
     ],
 ];
