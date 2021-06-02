@@ -27,6 +27,7 @@
 
 namespace BPN\BpnExpiringFeUsers\Backend\UserFunction;
 
+use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 use BPN\BpnExpiringFeUsers\Domain\Repository\ConfigRepository;
 use BPN\BpnExpiringFeUsers\Traits\ConfigTrait;
 use BPN\BpnExpiringFeUsers\Traits\DateServiceTrait;
@@ -64,15 +65,15 @@ class NextMatchingUsers extends AbstractUsersView
         }
 
         $this->getConfigRepository()->allowHiddenRecords();
+        /** @var Config $config */
         $config = $this->getConfigRepository()->findByUidIncludingHidden((int) $databaseRow['uid']);
         if (!$config) {
             return $this->showError('Configuration was not found [1621681787]', $resultArray);
         }
-        $users = $this->getFrontEndUserRepository()->getUserByConfig($config, 0, true, 1000);
+        $users = $this->getFrontEndUserRepository()->findMatchingUsers($config);
         if (!$users) {
             return $this->showError('No users found', $resultArray);
         }
-
         return $this->renderView($users, $resultArray);
     }
 
