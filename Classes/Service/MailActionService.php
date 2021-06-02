@@ -27,6 +27,7 @@
 
 namespace BPN\BpnExpiringFeUsers\Service;
 
+use BPN\BpnChat\Traits\NameServiceTrait;
 use BPN\BpnExpiringFeUsers\Domain\Model\Config;
 use BPN\BpnExpiringFeUsers\Traits\FrontEndUserGroupTrait;
 use BPN\BpnExpiringFeUsers\Traits\FrontEndUserTrait;
@@ -43,6 +44,7 @@ final class MailActionService extends AbstractActionService
     use LogTrait;
     use FrontEndUserTrait;
     use FrontEndUserGroupTrait;
+    use NameServiceTrait;
 
     const SECRET = '*4g&b@R#9Hx78rVP';
     protected $action = 'mail';
@@ -181,8 +183,8 @@ final class MailActionService extends AbstractActionService
         }
 
         $emailText = str_replace(
-            ['###LINK###', '###NAME###', '###GROUPNAMES###', $groupNamesList],
-            [$extendLink, $this->getFullName($userRecord)],
+            ['###URI###', '###LINK###', '###NAME###', '###GROUPNAMES###'],
+            [$url, $extendLink, $this->getFullName($userRecord), $groupNamesList],
             $emailText
         );
 
@@ -230,27 +232,12 @@ final class MailActionService extends AbstractActionService
 
     private function getFullName(array $userRecord)
     {
-        if (!$userRecord) {
-            return '[user]';
+        $name = '';
+        if (isset($userRecord['email']) && $userRecord['email']) {
+            $name = $userRecord['email'];
         }
 
-        $result = [
-            0   => $userRecord['first_name'],
-            100 => $userRecord['last_name'],
-        ];
-
-        if ($userRecord['middle_name']) {
-            $result[50] = $userRecord['middle_name'];
-        }
-
-        ksort($result);
-        $result = implode(' ', $result);
-        $result = trim($result);
-        if (!$result) {
-            $result = sprintf('[user: %s]', $userRecord['uid']);
-        }
-
-        return $result;
+        return $this->getNameService()->getFullName($userRecord, false) ?: $name;
     }
 
     protected function generateHash(array $arguments): string

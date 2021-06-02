@@ -27,6 +27,7 @@
 
 namespace BPN\BpnExpiringFeUsers\Backend\UserFunction;
 
+use BPN\BpnChat\Traits\NameServiceTrait;
 use BPN\BpnExpiringFeUsers\Domain\Repository\ConfigRepository;
 use BPN\BpnExpiringFeUsers\Domain\Repository\FrontEndUserRepository;
 use BPN\BpnExpiringFeUsers\Traits\LogTrait;
@@ -37,6 +38,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 class Log extends AbstractFormElement
 {
     use LogTrait;
+    use NameServiceTrait;
 
     public function render()
     {
@@ -59,14 +61,6 @@ class Log extends AbstractFormElement
             return $this->showError('New Record detected. Please save first. [1621631328224]', $resultArray);
         }
 
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
-        /** @var ConfigRepository $configRepository */
-        $configRepository = $objectManager->get(ConfigRepository::class);
-
-        /** @var FrontEndUserRepository $frontEndUserRepository */
-        $frontEndUserRepository = $objectManager->get(FrontEndUserRepository::class);
-
         $uid = $databaseRow['uid'];
 
         $logs = $this->getLogRepository()->getByJobByUserWithUser($uid);
@@ -81,25 +75,26 @@ class Log extends AbstractFormElement
             $result[] = "<div>Displaying newest <b>{$numResults}</b> log entries.</div>";
             $result[] = '<table class="table-striped">';
             $result[] = '<thead><tr>';
-            $result[] = '<th class="col-md-1 font-weight-bold text-left">Uid</th>';
-            $result[] = '<th class="col-md-2 font-weight-bold text-left">Date</th>';
-            $result[] = '<th class="col-md-1 font-weight-bold text-left">Action</th>';
-            $result[] = '<th class="col font-weight-bold text-left">E-mail</th>';
-            $result[] = '<th class="col-md-2 font-weight-bold text-left">Name</th>';
-            $result[] = '<th class="col-md-2 font-weight-bold text-left">Message</th>';
+            $result[] = '<th class="col-md-1 font-weight-bold text-left" title="Users unique id">UserId</th>';
+            $result[] = '<th class="col-md-2 font-weight-bold text-left" title="Date of the log entry">Logdate</th>';
+            $result[] = '<th class="col-md-1 font-weight-bold text-left" title="Performed action">Action</th>';
+            $result[] = '<th class="col font-weight-bold text-left-left" title="Users e-mail">E-mail</th>';
+            $result[] = '<th class="col-md-2 font-weight-bold text-left" title="Users name">Name</th>';
+            $result[] = '<th class="col-md-2 font-weight-bold text-left" title="Log message">Message</th>';
             $result[] = '</tr></thead>';
             $result[] = '<tbody>';
 
             foreach ($logs as $log) {
                 $result[] = '<tr>';
                 $result[] = '<td class="col-md-1 text-left">'.$log['uid'].'&nbsp;</td>';
-                $result[] = '<td class="col-md-2 text-left">'.($log['crdate'] ? date(
-                        'd-m-y H:i:s',
-                        $log['crdate']
-                    ) : '-').'&nbsp;</td>';
+                $result[] = '<td class="col-md-2 text-left">'.($log['crdate']
+                        ? date('d-m-y H:i',(int)$log['crdate']) : '-').'&nbsp;</td>';
+
+                $name = $this->getNameService()->getFullName($log, false) ?: '-';
+
                 $result[] = '<td class="col-md-3 text-left">'.$log['action'].'&nbsp;</td>';
-                $result[] = '<td class="col-md-2 text-left">'.$log['fe_user'].'&nbsp;</td>';
-                $result[] = '<td class="col-md-2 text-left">'.$log['name'].'&nbsp;</td>';
+                $result[] = '<td class="col-md-2 text-left">'.$log['email'].'&nbsp;</td>';
+                $result[] = '<td class="col-md-2 text-left">'.$name.'&nbsp;</td>';
                 $result[] = '<td class="col-md-2 text-left">'.$log['msg'].'</td>';
                 $result[] = '</tr>';
             }

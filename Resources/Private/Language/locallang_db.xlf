@@ -118,7 +118,7 @@
         <source>E-mail Subject</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.email_text" xml:space="preserve">
-        <source>E-mail Bodytext: (###NAME### will be replaced with users name) (###LINK### When extend link is enabled) (Only for Group expires within: ###GROUPNAMES###)</source>
+        <source>E-mail Bodytext: (###NAME### for users name) (###LINK### When extend link is enabled; ###URI### adds the link itself) (Only for Group expires within: ###GROUPNAMES###)</source>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.expires_in" xml:space="preserve">
         <source>Automatically set account to expire in: (in days) (set to 0 to not automatically expire)</source>

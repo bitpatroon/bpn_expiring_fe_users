@@ -96,7 +96,7 @@ class LogRepository extends Repository
     /**
      * Checks if a fe_user is found in a specific jobs sentlog.
      */
-    public function isInSentLog(int $job, int $userId, int $testmode) : bool
+    public function isInSentLog(int $job, int $userId, int $testmode): bool
     {
         $table = self::TABLE;
 
@@ -118,7 +118,7 @@ class LogRepository extends Repository
     /**
      * @deprecated Use isInSentLog
      */
-    public function hasLogEntries(int $job, int $user, int $testmode) : bool
+    public function hasLogEntries(int $job, int $user, int $testmode): bool
     {
         return $this->isInSentLog($job, $user, $testmode);
     }
@@ -138,7 +138,7 @@ class LogRepository extends Repository
         $rows = [];
         if ($data) {
             foreach ($data as $row) {
-                $rows[(int)$row['uid']] = $row;
+                $rows[(int) $row['uid']] = $row;
             }
         }
 
@@ -153,22 +153,31 @@ class LogRepository extends Repository
             ->getQueryBuilderForTable($table);
 
         $queryBuilder
-            ->select('*')
+            ->select(
+                self::TABLE .  '.*',
+                'fe_users.email',
+                'fe_users.first_name',
+                'fe_users.middle_name',
+                'fe_users.last_name',
+                'fe_users.email',
+                'fe_users.name',
+                'fe_users.username'
+            )
             ->from($table)
             ->leftJoin(
                 $table,
                 'fe_users',
                 'fe_users',
                 $queryBuilder->expr()->eq(
-                    $table . '.fe_user',
+                    $table.'.fe_user',
                     $queryBuilder->quoteIdentifier('fe_users.uid')
                 )
             )
             ->where(
-                $queryBuilder->expr()->eq($table . '.job', $uid),
-                $queryBuilder->expr()->eq($table . '.deleted', 0),
+                $queryBuilder->expr()->eq($table.'.job', $uid),
+                $queryBuilder->expr()->eq($table.'.deleted', 0),
             )
-            ->orderBy($table . '.uid')
+            ->orderBy($table.'.crdate', 'DESC')
             ->setMaxResults(1000);
 
         return $queryBuilder->execute()->fetchAllAssociative();
@@ -195,7 +204,7 @@ class LogRepository extends Repository
         return $queryBuilder->execute()->fetchAssociative();
     }
 
-    public function setInput($input) : LogRepository
+    public function setInput($input): LogRepository
     {
         if ($input) {
             $this->input = $input;
@@ -204,7 +213,7 @@ class LogRepository extends Repository
         return $this;
     }
 
-    public function setOutput($output) : LogRepository
+    public function setOutput($output): LogRepository
     {
         if ($output) {
             $this->output = $output;
@@ -249,11 +258,11 @@ class LogRepository extends Repository
     /**
      * This function checks if a user was already mailed by a job, and if so, if it was long enough ago to do it again.
      */
-    public function checkSentLog(Config $config, int $userId) : bool
+    public function checkSentLog(Config $config, int $userId): bool
     {
         $testmode = $config->getTestmode();
         $daysAgo = $config->getExtendBy() - $config->getDays();
-        $hasToBe = strtotime('-' . $daysAgo . ' days');
+        $hasToBe = strtotime('-'.$daysAgo.' days');
 
         if ($config->getExtendBy() <= 0) {
             return true;

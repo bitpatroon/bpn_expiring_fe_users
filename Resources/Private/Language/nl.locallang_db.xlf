@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff version="1.0" standalone="yes">
-  <file source-language="en" datatype="plaintext" original="messages" data="2019-01-07T13-16-00" product-name="bpn_expiring_fe_users">
+  <file source-language="en" datatype="plaintext" original="messages" data="2019-01-07T13-16-00"
+        product-name="bpn_expiring_fe_users">
     <header/>
     <body>
       <trans-unit id="scheduler.title" xml:space="preserve">
@@ -156,8 +157,8 @@
         <target>E-mail onderwerp</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.email_text" xml:space="preserve">
-        <source>E-mail Bodytext: (###NAME### will be replaced with users name) (###LINK### When extend link is enabled) (Only for Group expires within: ###GROUPNAMES###)</source>
-        <target>E-mail bodytext: (###NAME### wordt vervangen door de naam van de gebruiker) (###LINK### De verleng link, mits geactiveerd) (Verlopende groepsnaam: ###GROUPNAMES###)</target>
+        <source>E-mail Bodytext: (###NAME### for users name) (###LINK### When extend link is enabled; ###URI### adds the link itself) (Only for Group expires within: ###GROUPNAMES###)</source>
+        <target>E-mail bodytext: (###NAME### voor de naam van de gebruiker) (###LINK### De verleng link, mits geactiveerd; ###URI### zet alleen de link) (Verlopende groepsnaam: ###GROUPNAMES###)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.expires_in" xml:space="preserve">
         <source>Automatically set account to expire in: (in days) (set to 0 to not automatically expire)</source>
@@ -184,8 +185,10 @@
         <target>Verlengen met (#dagen). Niet veranderen nadat berichten verzonden zijn. Wordt tevens gebruikt bij het berekenen wanneer e-mail opnieuw moet worden verzonden.</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.page" xml:space="preserve">
-        <source>Full URL to the Page where the Extend plugin resides (REQUIRED when adding Extend link.) (Example: http://www.example.com/extend/)</source>        <target>Volledige URL naar de verleng pagina. (Benodigd wanneer de verleng link wordt ingevoegd.) (Example: http://www.example.com/extend/)</target>
-        <target>De volledige URL van de pagina waar de verleng plugin staat (VERPLICHT als er een verlenglink wordt aangeboden.) (Bijvoorbeeld: http://www.example.com/extend/)</target>        <target>Volledige URL naar de verleng pagina. (Benodigd wanneer de verleng link wordt ingevoegd.) (Example: http://www.example.com/extend/)</target>
+        <source>Full URL to the Page where the Extend plugin resides (REQUIRED when adding Extend link.) (Example: http://www.example.com/extend/)</source>
+        <target>Volledige URL naar de verleng pagina. (Benodigd wanneer de verleng link wordt ingevoegd.) (Example: http://www.example.com/extend/)</target>
+        <target>De volledige URL van de pagina waar de verleng plugin staat (VERPLICHT als er een verlenglink wordt aangeboden.) (Bijvoorbeeld: http://www.example.com/extend/)</target>
+        <target>Volledige URL naar de verleng pagina. (Benodigd wanneer de verleng link wordt ingevoegd.) (Example: http://www.example.com/extend/)</target>
       </trans-unit>
       <trans-unit id="tx_bpnexpiringfeusers_config.allmatchingusers" xml:space="preserve">
         <source>These users match the currently configured conditions</source>

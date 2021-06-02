@@ -95,6 +95,10 @@ class RunCommand extends Command
 
             /** @var Config $configRow */
             foreach ($configRows as $configRow) {
+                if($configRow->getTitle() === '[CODECEPTION]'){
+                    // skip configurations with a title resembling an end 2 end test
+                    continue;
+                }
                 /** @var FrontEndUser[]|int[] $users */
                 $users = $this->frontEndUserRepository->findMatchingUsers($configRow);
                 if (empty($users)) {

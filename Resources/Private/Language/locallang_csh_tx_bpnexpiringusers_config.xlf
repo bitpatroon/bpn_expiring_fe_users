@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" datatype="plaintext" original="EXT:sys_note/Resources/Private/Language/locallang_csh_sysnote.xlf" date="2011-10-17T20:22:37Z" product-name="sys_note">
+		<header/>
+		<body>
+			<trans-unit id=".description" resname=".description">
+				<source>Configuration for actions on (user) accounts</source>
+			</trans-unit>
+			<trans-unit id=".details" resname=".details">
+				<source>A job that performs an action on a users account, that matches a set of conditions.</source>
+			</trans-unit>
+			<trans-unit id="email_text.description" resname="email_text.description">
+				<source>Bodytext of the e-mail being sent to a user. The following tags will be automatically replaced with personalised content. ###NAME### with the users name, ###LINK### with the link tag to extend, ###URI### with (only) the extend link, ###GROUPNAMES### with the name of an expiring group (Only for "Group expires within")</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
